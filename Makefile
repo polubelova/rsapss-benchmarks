@@ -8,9 +8,8 @@ CFLAGS := -I$(KREMLIN_HOME)/include -I$(HACL_HOME)/dist/gcc-compatible \
 	-I$(OPENSSL_HOME)/include -I$(OPENSSL_HOME)/include/crypto -I$(OPENSSL_HOME)/crypto \
 	-O3 -march=native -mtune=native $(CFLAGS)
 
-all: $(TARGETS)
-
-test: $(patsubst %.exe,%.test,$(TARGETS))
+all: librsapss.a \
+	$(TARGETS)
 
 # Dependency
 %.d: %.c
@@ -20,6 +19,7 @@ test: $(patsubst %.exe,%.test,$(TARGETS))
 	  rm -f $@.$$$$
 
 librsapss.a:
+	rm -rf $(HACL_HOME)/code/rsapss/dist/*.a $(HACL_HOME)/code/rsapss/dist/*.o && \
 	OTHERFLAGS="--admit_smt_queries true" make -C $(HACL_HOME)/code/rsapss dist/librsapss.a && \
 	cp $(HACL_HOME)/code/rsapss/dist/librsapss.a librsapss.a
 
@@ -32,9 +32,5 @@ rsapss-boringssl-test.exe: rsapss-boringssl-test.o
 %.exe: %.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@
 
-# Running tests
-%.test: %.exe
-	./$<
-
 clean:
-	rm -rf *.o *.d *.exe
+	rm -rf *.o *.d *.exe *.a
