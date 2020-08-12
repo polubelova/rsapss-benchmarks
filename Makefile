@@ -19,6 +19,10 @@ test: $(patsubst %.exe,%.test,$(TARGETS))
 	  sed 's,\($(notdir $*)\)\.o[ :]*,$(dir $@)\1.o $@ : ,g' < $@.$$$$ > $@; \
 	  rm -f $@.$$$$
 
+librsapss.a:
+	OTHERFLAGS="--admit_smt_queries true" make -C $(HACL_HOME)/code/rsapss dist/librsapss.a && \
+	cp $(HACL_HOME)/code/rsapss/dist/librsapss.a librsapss.a
+
 rsapss-openssl-test.exe: rsapss-openssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
 
