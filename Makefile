@@ -26,6 +26,9 @@ librsapss.a:
 rsapss-openssl-test.exe: rsapss-openssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
 
+rsapss-openssl-test-4096.exe: rsapss-openssl-test-4096.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
+
 rsapss-boringssl-test.exe: rsapss-boringssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(BORINGSSL_HOME)/build/crypto/libcrypto.a -lpthread -ldl
 
