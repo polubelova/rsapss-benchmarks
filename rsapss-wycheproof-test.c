@@ -13,9 +13,9 @@
 bool hacl_verify(
   Spec_Hash_Definitions_hash_alg alg,
   uint32_t modBits,
-  uint8_t *n1,
-  uint32_t pkeyBits,
-  uint8_t *e,
+  uint32_t eBits,
+  uint8_t *nb,
+  uint8_t *eb,
   uint32_t msgLen,
   uint8_t *msg,
   uint32_t saltLen,
@@ -23,24 +23,13 @@ bool hacl_verify(
   uint8_t *sgnt
 )
 {
-  uint32_t nLenBytes = (modBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U;
-  uint32_t nLen = (modBits - (uint32_t)1U) / (uint32_t)64U + (uint32_t)1U;
-  uint32_t eLen = (pkeyBits - (uint32_t)1U) / (uint32_t)64U + (uint32_t)1U;
-  uint32_t pkeyLen = nLen + eLen;
-
-  uint64_t pkey[pkeyLen];
-  memset(pkey, 0U, pkeyLen * sizeof pkey[0U]);
-  uint64_t *nNat = pkey;
-  uint64_t *eNat = pkey + nLen;
-  Hacl_Bignum_Convert_bn_from_bytes_be((modBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U, n1, nNat);
-  Hacl_Bignum_Convert_bn_from_bytes_be((pkeyBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U, e, eNat);
-
+  uint32_t nbLen = (modBits - 1) / 8 + 1;
+  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, nb, eb);
   bool verify_sgnt;
-  if (sgntLen == nLenBytes)
-    verify_sgnt = Hacl_RSAPSS_rsapss_verify(alg, modBits, pkeyBits, pkey, saltLen, sgnt, msgLen, msg);
+  if (sgntLen == nbLen)
+    verify_sgnt = Hacl_RSAPSS_rsapss_verify(alg, modBits, eBits, pkey, saltLen, sgnt, msgLen, msg);
   else
     verify_sgnt = false;
-
   return verify_sgnt;
 }
 
@@ -51,9 +40,9 @@ bool print_result(uint32_t len, uint8_t* comp, uint8_t* exp) {
 bool print_test(
   Spec_Hash_Definitions_hash_alg alg,
   uint32_t modBits,
-  uint8_t *n1,
-  uint32_t pkeyBits,
-  uint8_t *e,
+  uint8_t *nb,
+  uint32_t eBits,  
+  uint8_t *eb,
   uint32_t msgLen,
   uint8_t *msg,
   uint32_t saltLen,
@@ -61,11 +50,12 @@ bool print_test(
   uint8_t *sgnt,
   bool valid
 ){
-  bool ver = hacl_verify(alg, modBits, n1, pkeyBits, e, msgLen, msg, saltLen, sgntLen, sgnt);
+  bool ver = hacl_verify(alg, modBits, eBits, nb, eb, msgLen, msg, saltLen, sgntLen, sgnt);
   //printf ("ver = %d  valid = %d\n", ver, valid);
   //if (ver == valid) printf("Success!\n"); else printf("Failure!\n");
   return (ver == valid);
 }
+
 
 int main() {
 
