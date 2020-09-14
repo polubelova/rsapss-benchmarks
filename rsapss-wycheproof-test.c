@@ -23,13 +23,8 @@ bool hacl_verify(
   uint8_t *sgnt
 )
 {
-  uint32_t nbLen = (modBits - 1) / 8 + 1;
   uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, nb, eb);
-  bool verify_sgnt;
-  if (sgntLen == nbLen)
-    verify_sgnt = Hacl_RSAPSS_rsapss_verify(alg, modBits, eBits, pkey, saltLen, sgnt, msgLen, msg);
-  else
-    verify_sgnt = false;
+  bool verify_sgnt = Hacl_RSAPSS_rsapss_verify(alg, modBits, eBits, pkey, saltLen, sgntLen, sgnt, msgLen, msg);
   return verify_sgnt;
 }
 
@@ -41,7 +36,7 @@ bool print_test(
   Spec_Hash_Definitions_hash_alg alg,
   uint32_t modBits,
   uint8_t *nb,
-  uint32_t eBits,  
+  uint32_t eBits,
   uint8_t *eb,
   uint32_t msgLen,
   uint8_t *msg,

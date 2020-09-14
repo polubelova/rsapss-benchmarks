@@ -51,11 +51,12 @@ bool hacl_verify(
   uint32_t msgLen,
   uint8_t *msg,
   uint32_t saltLen,
+  uint32_t k,
   uint8_t *sgnt
 )
 {
   uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, nb, eb);
-  bool verify_sgnt = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, saltLen, sgnt, msgLen, msg);
+  bool verify_sgnt = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, saltLen, k, sgnt, msgLen, msg);
   return verify_sgnt;
 }
 
@@ -159,10 +160,10 @@ bool print_result(uint32_t len, uint8_t* comp, uint8_t* exp) {
 
 bool print_test(
   uint32_t modBits,
-  uint32_t eBits,
-  uint32_t dBits,
   uint8_t *nb,
+  uint32_t eBits,
   uint8_t *eb,
+  uint32_t dBits,
   uint8_t *db,
   uint32_t msgLen,
   uint8_t *msg,
@@ -179,7 +180,7 @@ bool print_test(
   ok = ok && print_result(nbLen, sgnt, sgnt_expected);
 
   printf("RSAPSS verify Result:\n");
-  bool ver = hacl_verify(modBits, eBits, nb, eb, msgLen, msg, saltLen, sgnt);
+  bool ver = hacl_verify(modBits, eBits, nb, eb, msgLen, msg, saltLen, nbLen, sgnt);
   if (ver) printf("Success!\n");
   ok = ok && ver;
   return ok;
@@ -189,7 +190,7 @@ int main() {
 
   bool ok = true;
   for (int i = 0; i < sizeof(vectors)/sizeof(rsapss_test_vector); ++i) {
-    ok &= print_test(vectors[i].modBits,vectors[i].eBits,vectors[i].dBits,vectors[i].n,vectors[i].e,vectors[i].d,
+    ok &= print_test(vectors[i].modBits,vectors[i].n,vectors[i].eBits,vectors[i].e,vectors[i].dBits,vectors[i].d,
 		     vectors[i].msgLen,vectors[i].msg,vectors[i].saltLen,vectors[i].salt,vectors[i].sgnt_expected);
   }
 
@@ -200,14 +201,14 @@ int main() {
 
   ok = true;
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_sign(2048U, 24U, 2048U, vectors[3].n, vectors[3].e, vectors[3].d, 128U, vectors[3].msg, 0U, NULL, comp);
+    hacl_sign(4096U, 24U, 4096U, vectors[4].n, vectors[4].e, vectors[4].d, 128U, vectors[4].msg, 0U, NULL, comp);
     res = res ^ comp[0];
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_sign(2048U, 24U, 2048U, vectors[3].n, vectors[3].e, vectors[3].d, 128U, vectors[3].msg, 0U, NULL, comp);
+    hacl_sign(4096U, 24U, 4096U, vectors[4].n, vectors[4].e, vectors[4].d, 128U, vectors[4].msg, 0U, NULL, comp);
     res = res ^ comp[0];
   }
   b = cpucycles_end();
@@ -218,14 +219,14 @@ int main() {
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    int r = hacl_verify(2048U, 24U, vectors[3].n, vectors[3].e, 128U, vectors[3].msg, 0U, comp);
+    int r = hacl_verify(4096U, 24U, vectors[4].n, vectors[4].e, 128U, vectors[4].msg, 0U, 512U, comp);
     res = res ^ r;
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    int r = hacl_verify(2048U, 24U, vectors[3].n, vectors[3].e, 128U, vectors[3].msg, 0U, comp);
+    int r = hacl_verify(4096U, 24U, vectors[4].n, vectors[4].e, 128U, vectors[4].msg, 0U, 512U, comp);
     res = res ^ r;
   }
   b = cpucycles_end();
