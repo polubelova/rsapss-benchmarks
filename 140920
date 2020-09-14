@@ -1,0 +1,212 @@
+==========================================================
+openssl-no-asm, gcc-9, modBits = 4096
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 156871722072 (156871722.07cycles/byte)
+time for 1000 bytes: 65362808 (65362.81us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 565426450 (565426.45cycles/byte)
+time for 1000 bytes: 235594 (235.59us/byte)
+
+OpenSSL RSAPSS signature
+cycles for 1000 bytes: 171256088512 (171256088.51cycles/byte)
+time for 1000 bytes: 71356148 (71356.15us/byte)
+
+OpenSSL RSAPSS verification
+cycles for 1000 bytes: 753359596 (753359.60cycles/byte)
+time for 1000 bytes: 313902 (313.90us/byte)
+
+ratio signature hacl/openssl     0.92
+ratio verification hacl/openssl     0.75
+==========================================================
+openssl-no-asm, gcc-9, modBits = 2048
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 21510075604 (21510075.60cycles/byte)
+time for 1000 bytes: 8962432 (8962.43us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 155668570 (155668.57cycles/byte)
+time for 1000 bytes: 64863 (64.86us/byte)
+
+OpenSSL RSAPSS signature
+cycles for 1000 bytes: 26098109664 (26098109.66cycles/byte)
+time for 1000 bytes: 10874090 (10874.09us/byte)
+
+OpenSSL RSAPSS verification
+cycles for 1000 bytes: 173909128 (173909.13cycles/byte)
+time for 1000 bytes: 72463 (72.46us/byte)
+
+ratio signature hacl/openssl     0.82
+ratio verification hacl/openssl     0.90
+==========================================================
+openssl-no-asm, clang-9, modBits = 2048
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 18097339954 (18097339.95cycles/byte)
+time for 1000 bytes: 7540531 (7540.53us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 128475668 (128475.67cycles/byte)
+time for 1000 bytes: 53529 (53.53us/byte)
+
+OpenSSL RSAPSS signature
+cycles for 1000 bytes: 26389291632 (26389291.63cycles/byte)
+time for 1000 bytes: 10995492 (10995.49us/byte)
+
+OpenSSL RSAPSS verification
+cycles for 1000 bytes: 174221478 (174221.48cycles/byte)
+time for 1000 bytes: 72594 (72.59us/byte)
+
+ratio signature hacl/openssl     0.69
+ratio verification hacl/openssl     0.74
+===========================================================
+openssl-no-asm, clang-9, modBits = 4096
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 136866820048 (136866820.05cycles/byte)
+time for 1000 bytes: 57026467 (57026.47us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 488407666 (488407.67cycles/byte)
+time for 1000 bytes: 203500 (203.50us/byte)
+
+OpenSSL RSAPSS signature
+cycles for 1000 bytes: 174779564202 (174779564.20cycles/byte)
+time for 1000 bytes: 72820427 (72820.43us/byte)
+
+OpenSSL RSAPSS verification
+cycles for 1000 bytes: 701604692 (701604.69cycles/byte)
+time for 1000 bytes: 292338 (292.34us/byte)
+
+ratio signature hacl/openssl     0.78
+ratio verification hacl/openssl     0.70
+===========================================================
+boringssl-no-asm, gcc-9, modBits = 2048
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 23159755540 (23159755.54cycles/byte)
+time for 1000 bytes: 9649808 (9649.81us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 229660836 (229660.84cycles/byte)
+time for 1000 bytes: 95695 (95.69us/byte)
+
+Boringssl RSAPSS signature
+cycles for 1000 bytes: 76835980188 (76835980.19cycles/byte)
+time for 1000 bytes: 32014588 (32014.59us/byte)
+bw     0.00 MB/s
+
+Boringssl RSAPSS verification
+cycles for 1000 bytes: 557714124 (557714.12cycles/byte)
+time for 1000 bytes: 232373 (232.37us/byte)
+
+ratio signature hacl/boringssl     0.30
+ratio verification hacl/boringssl     0.41
+============================================================
+openssl-asm, gcc-9, modBits = 2048
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 21371344972 (21371344.97cycles/byte)
+time for 1000 bytes: 8904087 (8904.09us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 160727592 (160727.59cycles/byte)
+time for 1000 bytes: 66738 (66.74us/byte)
+
+OpenSSL RSAPSS signature
+cycles for 1000 bytes: 6353052280 (6353052.28cycles/byte)
+time for 1000 bytes: 2642187 (2642.19us/byte)
+
+OpenSSL RSAPSS verification
+cycles for 1000 bytes: 57339770 (57339.77cycles/byte)
+time for 1000 bytes: 23895 (23.89us/byte)
+
+ratio signature hacl/openssl     3.36
+ratio verification hacl/openssl     2.80
+==============================================================
+openssl-asm, gcc-9, modBits = 4096
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 155979705558 (155979705.56cycles/byte)
+time for 1000 bytes: 64991166 (64991.17us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 546615178 (546615.18cycles/byte)
+time for 1000 bytes: 227759 (227.76us/byte)
+
+OpenSSL RSAPSS signature
+cycles for 1000 bytes: 34193640244 (34193640.24cycles/byte)
+time for 1000 bytes: 14247245 (14247.25us/byte)
+
+OpenSSL RSAPSS verification
+cycles for 1000 bytes: 180926122 (180926.12cycles/byte)
+time for 1000 bytes: 75388 (75.39us/byte)
+
+ratio signature hacl/openssl     4.56
+ratio verification hacl/openssl     3.02
+============================================================
+boringssl-no-asm, clang-9, modBits = 2048
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 17526867426 (17526867.43cycles/byte)
+time for 1000 bytes: 7302746 (7302.75us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 133892780 (133892.78cycles/byte)
+time for 1000 bytes: 55789 (55.79us/byte)
+
+Boringssl RSAPSS signature
+cycles for 1000 bytes: 84641028270 (84641028.27cycles/byte)
+time for 1000 bytes: 35243888 (35243.89us/byte)
+
+Boringssl RSAPSS verification
+cycles for 1000 bytes: 502992080 (502992.08cycles/byte)
+time for 1000 bytes: 209582 (209.58us/byte)
+
+ratio signature hacl/boringssl     0.21
+ratio verification hacl/boringssl     0.27
+===========================================================
+openssl-asm, clang-9, modBits = 2048
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 18277908750 (18277908.75cycles/byte)
+time for 1000 bytes: 7615467 (7615.47us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 125003310 (125003.31cycles/byte)
+time for 1000 bytes: 52087 (52.09us/byte)
+
+OpenSSL RSAPSS signature
+cycles for 1000 bytes: 4515300178 (4515300.18cycles/byte)
+time for 1000 bytes: 1881313 (1881.31us/byte)
+
+OpenSSL RSAPSS verification
+cycles for 1000 bytes: 58677024 (58677.02cycles/byte)
+time for 1000 bytes: 24441 (24.44us/byte)
+
+ratio signature hacl/openssl     4.05
+ratio verification hacl/openssl     2.13
+============================================================
+openssl-asm, clang-9, modBits=4096
+
+HACL* RSAPSS signature
+cycles for 1000 bytes: 138202549864 (138202549.86cycles/byte)
+time for 1000 bytes: 57548935 (57548.93us/byte)
+
+HACL* RSAPSS verification
+cycles for 1000 bytes: 457381666 (457381.67cycles/byte)
+time for 1000 bytes: 190573 (190.57us/byte)
+
+OpenSSL RSAPSS signature
+cycles for 1000 bytes: 33543631504 (33543631.50cycles/byte)
+time for 1000 bytes: 13976451 (13976.45us/byte)
+
+OpenSSL RSAPSS verification
+cycles for 1000 bytes: 167571956 (167571.96cycles/byte)
+time for 1000 bytes: 69823 (69.82us/byte)
+
+ratio signature hacl/openssl     4.12
+ratio verification hacl/openssl     2.73
+==========================================================
