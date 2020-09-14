@@ -136,6 +136,7 @@ bool print_test(
   uint8_t *sgnt_expected
 ){
   uint32_t nbLen = (modBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U;
+
   uint8_t sgnt[nbLen];
   memset(sgnt, 0U, nbLen * sizeof (sgnt[0U]));
 
@@ -149,6 +150,7 @@ bool print_test(
   bool ver = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, saltLen, nbLen, sgnt, msgLen, msg);
   if (ver) printf("Success!\n");
   ok = ok && ver;
+
   return ok;
 }
 
@@ -167,19 +169,23 @@ int main() {
   cycles a,b;
   clock_t t1,t2;
 
-  uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(2048U, 24U, 2048U, vectors[3].n, vectors[3].e, vectors[3].d);
-  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(2048U, 24U, vectors[3].n, vectors[3].e);
+  size_t modBits = vectors[3].modBits;
+  size_t eBits   = vectors[3].eBits;
+  size_t dBits   = vectors[3].dBits;
+
+  uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(modBits, eBits, dBits, test4_n, test4_e, test4_d);
+  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, test4_n, test4_e);
 
   ok = true;
   for (int j = 0; j < ROUNDS; j++) {
-    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, 2048U, skey, 0U, NULL, 128U, vectors[3].msg, comp);
+    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, modBits, eBits, dBits, skey, 0U, NULL, vectors[3].msgLen, vectors[3].msg, comp);
     res = res ^ comp[0];
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, 2048U, skey, 0U, NULL, 128U, vectors[3].msg, comp);
+    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, modBits, eBits, dBits, skey, 0U, NULL, vectors[3].msgLen, vectors[3].msg, comp);
     res = res ^ comp[0];
   }
   b = cpucycles_end();
@@ -190,14 +196,14 @@ int main() {
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, pkey, 0U, 256U, comp, 128U, vectors[3].msg);
+    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, 0U, 256U, comp, vectors[3].msgLen, vectors[3].msg);
     res = res ^ r;
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, pkey, 0U, 256U, comp, 128U, vectors[3].msg);
+    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, 0U, 256U, comp, vectors[3].msgLen, vectors[3].msg);
     res = res ^ r;
   }
   b = cpucycles_end();
@@ -249,6 +255,7 @@ int main() {
   printf("\nHACL* RSAPSS verification\n"); print_time(count,diff2,cyc2);
   printf("\nOpenSSL RSAPSS signature\n"); print_time(count,diff3,cyc3);
   printf("\nOpenSSL RSAPSS verification\n"); print_time(count,diff4,cyc4);
+
   printf("\nratio signature hacl/openssl %8.2f\n", (double)cyc1/cyc3);
   printf("\nratio verification hacl/openssl %8.2f\n", (double)cyc2/cyc4);
 

@@ -103,6 +103,7 @@ boringssl_sign(
 int
 boringssl_verify(
   RSA* pRsaKey,
+  size_t salt_len,
   uint8_t* msg,
   uint32_t msg_len,
   uint8_t* sig,
@@ -122,7 +123,7 @@ boringssl_verify(
   EVP_DigestVerifyInit(&md_ctx, &pkey_ctx, EVP_sha256(), NULL, pkey);
   EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PSS_PADDING);
   EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, EVP_sha256());
-  EVP_PKEY_CTX_set_rsa_pss_saltlen(pkey_ctx, 20);
+  EVP_PKEY_CTX_set_rsa_pss_saltlen(pkey_ctx, salt_len);
   int ret = EVP_DigestVerify(&md_ctx, sig, sig_len, msg, msg_len);
   return ret;
 }
@@ -165,7 +166,7 @@ bool print_test(
   printf("Boringssl verify Result\n");
   RSA* privkey = createPrivateKey(nb, nbLen, eb, ebLen, db, dbLen);
   RSA* pubkey = createPublicKey(nb, nbLen, eb, ebLen);
-  bool ver_boringssl = boringssl_verify(pubkey, msg, msgLen, sgnt_expected, nbLen);
+  bool ver_boringssl = boringssl_verify(pubkey, saltLen, msg, msgLen, sgnt_expected, nbLen);
   if (ver_boringssl) printf("Success!\n"); else printf("Failure :(\n");
 
   return ok;
@@ -186,19 +187,23 @@ int main() {
   cycles a,b;
   clock_t t1,t2;
 
-  uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(2048U, 24U, 2048U, vectors[3].n, vectors[3].e, vectors[3].d);
-  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(2048U, 24U, vectors[3].n, vectors[3].e);
+  size_t modBits = vectors[3].modBits;
+  size_t eBits   = vectors[3].eBits;
+  size_t dBits   = vectors[3].dBits;
+
+  uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(modBits, eBits, dBits, test4_n, test4_e, test4_d);
+  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, test4_n, test4_e);
 
   ok = true;
   for (int j = 0; j < ROUNDS; j++) {
-    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, 2048U, skey, 0U, NULL, 128U, vectors[3].msg, comp);
+    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, modBits, eBits, dBits, skey, 0U, NULL, vectors[3].msgLen, vectors[3].msg, comp);
     res = res ^ comp[0];
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, 2048U, skey, 0U, NULL, 128U, vectors[3].msg, comp);
+    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, modBits, eBits, dBits, skey, 0U, NULL, vectors[3].msgLen, vectors[3].msg, comp);
     res = res ^ comp[0];
   }
   b = cpucycles_end();
@@ -209,14 +214,14 @@ int main() {
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, pkey, 0U, 256U, comp, 128U, vectors[3].msg);
+    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, 0U, 256U, comp, vectors[3].msgLen, vectors[3].msg);
     res = res ^ r;
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, pkey, 0U, 256U, comp, 128U, vectors[3].msg);
+    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, 0U, 256U, comp, vectors[3].msgLen, vectors[3].msg);
     res = res ^ r;
   }
   b = cpucycles_end();
@@ -230,14 +235,14 @@ int main() {
   RSA* pubkey = createPublicKey(test4_n, 256U, test4_e, 3U);
 
   for (int j = 0; j < ROUNDS; j++) {
-    boringssl_sign(privkey, 0U, vectors[3].msg, 128U, comp, 256U);
+    boringssl_sign(privkey, 0U, vectors[3].msg, vectors[3].msgLen, comp, 256U);
     res = res ^ comp[0];
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    boringssl_sign(privkey, 0U, vectors[3].msg, 128U, comp, 256U);
+    boringssl_sign(privkey, 0U, vectors[3].msg, vectors[3].msgLen, comp, 256U);
     res = res ^ comp[0];
   }
   b = cpucycles_end();
@@ -248,14 +253,14 @@ int main() {
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    int r = boringssl_verify(pubkey, vectors[3].msg, 128U, comp, 256U);
+    int r = boringssl_verify(pubkey, 0U, vectors[3].msg, vectors[3].msgLen, comp, 256U);
     res = res ^ r;
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    int r = boringssl_verify(pubkey, vectors[3].msg, 128U, comp, 256U);
+    int r = boringssl_verify(pubkey, 0U, vectors[3].msg, vectors[3].msgLen, comp, 256U);
     res = res ^ r;
   }
   b = cpucycles_end();
@@ -268,6 +273,7 @@ int main() {
   printf("\nHACL* RSAPSS verification\n"); print_time(count,diff2,cyc2);
   printf("\nBoringssl RSAPSS signature\n"); print_time(count,diff3,cyc3);
   printf("\nBoringssl RSAPSS verification\n"); print_time(count,diff4,cyc4);
+
   printf("\nratio signature hacl/boringssl %8.2f\n", (double)cyc1/cyc3);
   printf("\nratio verification hacl/boringssl %8.2f\n", (double)cyc2/cyc4);
 
