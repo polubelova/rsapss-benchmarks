@@ -145,6 +145,9 @@ bool print_test(
   uint8_t *sgnt_expected
 ){
   uint32_t nbLen = (modBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U;
+  uint32_t ebLen = (eBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U;
+  uint32_t dbLen = (dBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U;
+
   uint8_t sgnt[nbLen];
   memset(sgnt, 0U, nbLen * sizeof (sgnt[0U]));
 
@@ -160,8 +163,8 @@ bool print_test(
   ok = ok && ver;
 
   printf("Boringssl verify Result\n");
-  RSA* privkey = createPrivateKey(nb, nbLen, eb, (eBits - 1) / 8 + 1, db, (dBits - 1) / 8 + 1);
-  RSA* pubkey = createPublicKey(nb, nbLen, eb, (eBits - 1) / 8 + 1);
+  RSA* privkey = createPrivateKey(nb, nbLen, eb, ebLen, db, dbLen);
+  RSA* pubkey = createPublicKey(nb, nbLen, eb, ebLen);
   bool ver_boringssl = boringssl_verify(pubkey, msg, msgLen, sgnt_expected, nbLen);
   if (ver_boringssl) printf("Success!\n"); else printf("Failure :(\n");
 

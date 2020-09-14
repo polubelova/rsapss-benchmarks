@@ -24,42 +24,6 @@
 #define ROUNDS 1000
 #define SIZE   1
 
-bool hacl_sign(
-  uint32_t modBits,
-  uint32_t eBits,
-  uint32_t dBits,
-  uint8_t *nb,
-  uint8_t *eb,
-  uint8_t *db,
-  uint32_t msgLen,
-  uint8_t *msg,
-  uint32_t saltLen,
-  uint8_t *salt,
-  uint8_t *sgnt
-)
-{
-  uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(modBits, eBits, dBits, nb, eb, db);
-  Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, modBits, eBits, dBits, skey, saltLen, salt, msgLen, msg, sgnt);
-  return 1;
-}
-
-bool hacl_verify(
-  uint32_t modBits,
-  uint32_t eBits,
-  uint8_t *nb,
-  uint8_t *eb,
-  uint32_t msgLen,
-  uint8_t *msg,
-  uint32_t saltLen,
-  uint32_t k,
-  uint8_t *sgnt
-)
-{
-  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, nb, eb);
-  bool verify_sgnt = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, saltLen, k, sgnt, msgLen, msg);
-  return verify_sgnt;
-}
-
 
 RSA*
 createPrivateKey(
@@ -175,12 +139,14 @@ bool print_test(
   uint8_t sgnt[nbLen];
   memset(sgnt, 0U, nbLen * sizeof (sgnt[0U]));
 
-  bool ok = hacl_sign(modBits, eBits, dBits, nb, eb, db, msgLen, msg, saltLen, salt, sgnt);
+  uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(modBits, eBits, dBits, nb, eb, db);
+  Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, modBits, eBits, dBits, skey, saltLen, salt, msgLen, msg, sgnt);
   printf("RSAPSS sign Result:\n");
-  ok = ok && print_result(nbLen, sgnt, sgnt_expected);
+  bool ok = print_result(nbLen, sgnt, sgnt_expected);
 
   printf("RSAPSS verify Result:\n");
-  bool ver = hacl_verify(modBits, eBits, nb, eb, msgLen, msg, saltLen, nbLen, sgnt);
+  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, nb, eb);
+  bool ver = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, saltLen, nbLen, sgnt, msgLen, msg);
   if (ver) printf("Success!\n");
   ok = ok && ver;
   return ok;
@@ -201,16 +167,19 @@ int main() {
   cycles a,b;
   clock_t t1,t2;
 
+  uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(2048U, 24U, 2048U, vectors[3].n, vectors[3].e, vectors[3].d);
+  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(2048U, 24U, vectors[3].n, vectors[3].e);
+
   ok = true;
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_sign(2048U, 24U, 2048U, vectors[3].n, vectors[3].e, vectors[3].d, 128U, vectors[3].msg, 0U, NULL, comp);
+    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, 2048U, skey, 0U, NULL, 128U, vectors[3].msg, comp);
     res = res ^ comp[0];
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_sign(2048U, 24U, 2048U, vectors[3].n, vectors[3].e, vectors[3].d, 128U, vectors[3].msg, 0U, NULL, comp);
+    Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, 2048U, skey, 0U, NULL, 128U, vectors[3].msg, comp);
     res = res ^ comp[0];
   }
   b = cpucycles_end();
@@ -221,14 +190,14 @@ int main() {
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    int r = hacl_verify(2048U, 24U, vectors[3].n, vectors[3].e, 128U, vectors[3].msg, 0U, 256U, comp);
+    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, pkey, 0U, 256U, comp, 128U, vectors[3].msg);
     res = res ^ r;
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    int r = hacl_verify(2048U, 24U, vectors[3].n, vectors[3].e, 128U, vectors[3].msg, 0U, 256U, comp);
+    int r = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, 2048U, 24U, pkey, 0U, 256U, comp, 128U, vectors[3].msg);
     res = res ^ r;
   }
   b = cpucycles_end();

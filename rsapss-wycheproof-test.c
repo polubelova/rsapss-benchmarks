@@ -9,29 +9,6 @@
 #include "test_helpers.h"
 #include "rsapss_wycheproof_vectors.h"
 
-
-bool hacl_verify(
-  Spec_Hash_Definitions_hash_alg alg,
-  uint32_t modBits,
-  uint32_t eBits,
-  uint8_t *nb,
-  uint8_t *eb,
-  uint32_t msgLen,
-  uint8_t *msg,
-  uint32_t saltLen,
-  uint32_t sgntLen,
-  uint8_t *sgnt
-)
-{
-  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, nb, eb);
-  bool verify_sgnt = Hacl_RSAPSS_rsapss_verify(alg, modBits, eBits, pkey, saltLen, sgntLen, sgnt, msgLen, msg);
-  return verify_sgnt;
-}
-
-bool print_result(uint32_t len, uint8_t* comp, uint8_t* exp) {
-  return compare_and_print(len, comp, exp);
-}
-
 bool print_test(
   Spec_Hash_Definitions_hash_alg alg,
   uint32_t modBits,
@@ -45,7 +22,9 @@ bool print_test(
   uint8_t *sgnt,
   bool valid
 ){
-  bool ver = hacl_verify(alg, modBits, eBits, nb, eb, msgLen, msg, saltLen, sgntLen, sgnt);
+  uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, nb, eb);
+  bool ver = Hacl_RSAPSS_rsapss_verify(alg, modBits, eBits, pkey, saltLen, sgntLen, sgnt, msgLen, msg);
+
   //printf ("ver = %d  valid = %d\n", ver, valid);
   //if (ver == valid) printf("Success!\n"); else printf("Failure!\n");
   return (ver == valid);
