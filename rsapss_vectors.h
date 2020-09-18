@@ -257,7 +257,7 @@ static rsapss_test_vector vectors[] = {
   {
     .modBits = 1024,
     .n = test1_n,
-    .eBits = 24,
+    .eBits = 17,
     .e = test1_e,
     .dBits = 1024,
     .d = test1_d,
@@ -270,7 +270,7 @@ static rsapss_test_vector vectors[] = {
   {
     .modBits = 1025,
     .n = test2_n,
-    .eBits = 24,
+    .eBits = 17,
     .e = test2_e,
     .dBits = 1024,
     .d = test2_d,
@@ -283,7 +283,7 @@ static rsapss_test_vector vectors[] = {
   {
     .modBits = 1536,
     .n = test3_n,
-    .eBits = 24,
+    .eBits = 17,
     .e = test3_e,
     .dBits = 1536,
     .d = test3_d,
@@ -296,7 +296,7 @@ static rsapss_test_vector vectors[] = {
   {
     .modBits = 2048,
     .n = test4_n,
-    .eBits = 24,
+    .eBits = 17,
     .e = test4_e,
     .dBits = 2048,
     .d = test4_d,
@@ -309,7 +309,7 @@ static rsapss_test_vector vectors[] = {
   {
     .modBits = 4096,
     .n = test5_n,
-    .eBits = 24,
+    .eBits = 17,
     .e = test5_e,
     .dBits = 4096,
     .d = test5_d,
