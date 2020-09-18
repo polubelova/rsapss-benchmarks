@@ -1,0 +1,16 @@
+#!/bin/bash
+
+make clean && CC=gcc-9 CFLAGS=-w make && ./rsapss-openssl-test.exe && \
+make clean && CC=clang-9 CFLAGS=-w make && ./rsapss-openssl-test.exe && \
+
+make clean && OPENSSL_HOME=../openssl-no-asm CC=gcc-9 CFLAGS=-w make && ./rsapss-openssl-test.exe && \
+make clean && OPENSSL_HOME=../openssl-no-asm CC=clang-9 CFLAGS=-w make && ./rsapss-openssl-test.exe
+
+# make clean && CC=gcc-9 CFLAGS=-w make && ./rsapss-openssl-test-4096.exe && \
+# make clean && CC=clang-9 CFLAGS=-w make && ./rsapss-openssl-test-4096.exe && \
+
+# make clean && OPENSSL_HOME=../openssl-no-asm CC=gcc-9 CFLAGS=-w make && ./rsapss-openssl-test-4096.exe && \
+# make clean && OPENSSL_HOME=../openssl-no-asm CC=clang-9 CFLAGS=-w make && ./rsapss-openssl-test-4096.exe && \
+
+# make clean && CC=gcc-9 CFLAGS=-w make && ./rsapss-boringssl-test.exe && \
+# make clean && CC=clang-9 CFLAGS=-w make && ./rsapss-boringssl-test.exe
