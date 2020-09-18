@@ -23,13 +23,13 @@ librsapss.a:
 	OTHERFLAGS="--admit_smt_queries true" make -C $(HACL_HOME)/code/rsapss dist/librsapss.a && \
 	cp $(HACL_HOME)/code/rsapss/dist/librsapss.a librsapss.a
 
-rsapss-openssl-test.exe: rsapss-openssl-test.o
+rsapss-openssl-test.exe: librsapss.a rsapss-openssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
 
-rsapss-openssl-test-4096.exe: rsapss-openssl-test-4096.o
+rsapss-openssl-test-4096.exe: librsapss.a rsapss-openssl-test-4096.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
 
-rsapss-boringssl-test.exe: rsapss-boringssl-test.o
+rsapss-boringssl-test.exe: librsapss.a rsapss-boringssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(BORINGSSL_HOME)/build/crypto/libcrypto.a -lpthread -ldl
 
 %.exe: %.o
