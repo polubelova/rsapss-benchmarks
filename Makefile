@@ -44,6 +44,9 @@ bignum-openssl-test.exe: libbignum.a bignum-openssl-test.o
 mul-openssl-test.exe: libbignum.a mul-openssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
 
+mont-openssl-test.exe: libbignum.a mont-openssl-test.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
+
 %.exe: %.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@
 

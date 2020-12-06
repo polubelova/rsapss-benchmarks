@@ -41,21 +41,20 @@ void hacl_print(uint32_t len, uint64_t *b)
   print_bytes(len, to);
 }
 
-void ossl_bn_mul(BIGNUM *a, BIGNUM *b, BIGNUM *c, BN_CTX *ctx){
-  BN_mul(c, a, b, ctx);
+void ossl_bn_mont_mul(BIGNUM *a, BIGNUM *b, BIGNUM *c, BN_MONT_CTX *mont, BN_CTX *ctx){
+  BN_mod_mul_montgomery(c, a, b, mont, ctx);
 }
 
-void ossl_bn_sqr(BIGNUM *a, BIGNUM *c, BN_CTX *ctx){
-  BN_sqr(c, a, ctx);
+void ossl_bn_mont_sqr(BIGNUM *a, BIGNUM *c, BN_MONT_CTX *mont, BN_CTX *ctx){
+  BN_mod_mul_montgomery(c, a, a, mont, ctx);
 }
 
-
-void hacl_bn_mul(uint32_t len, uint64_t *a, uint64_t *b, uint64_t *res){
-  Hacl_Bignum64_bn_mul(len, a, b, res);
+void hacl_bn_mont_mul(uint32_t len, uint64_t *n, uint64_t mu, uint64_t *a, uint64_t *b, uint64_t *res){
+  Hacl_Bignum64_bn_mont_mul(len, n, mu, a, b, res);
 }
 
-void hacl_bn_sqr(uint32_t len, uint64_t *a, uint64_t *res){
-  Hacl_Bignum64_bn_sqr(len, a, res);
+void hacl_bn_mont_sqr(uint32_t len, uint64_t *n, uint64_t mu, uint64_t *a, uint64_t *res){
+  Hacl_Bignum64_bn_mont_sqr(len, n, mu, a, res);
 }
 
 uint64_t *bn_ossl_to_hacl(uint32_t nBytes, BIGNUM *a){
@@ -74,47 +73,51 @@ void bn_compare_and_print(uint32_t nBytes, BIGNUM *a, uint64_t *b){
 }
 
 
-void test_mul(int nBits){
+void test_mont_mul(int nBits){
   cycles c1,c2;
   clock_t t1,t2;
 
   BN_CTX *ctx = BN_CTX_new();
-  BIGNUM *a = NULL, *b = NULL, *c = NULL;
+  BIGNUM *a = NULL, *b = NULL, *n = NULL, *c = NULL;
   a = BN_new();
   b = BN_new();
+  n = BN_new();
   c = BN_new();
 
   int nBytes = (nBits - 1) / 8 + 1;
   int nLen = (nBits - 1) / 64 + 1;
 
-  BN_rand(a, nBits, 1, 0);
-  BN_rand(b, nBits, 1, 0);
+  BN_rand(n, nBits, 1, 1);
+  BN_rand_range(a, n);
+  BN_rand_range(b, n);
 
   uint64_t *ah = bn_ossl_to_hacl(nBytes, a);
   uint64_t *bh = bn_ossl_to_hacl(nBytes, b);
-  uint64_t ch[nLen + nLen];
+  uint64_t *nh = bn_ossl_to_hacl(nBytes, n);
+  uint64_t ch[nLen];
+  uint64_t mu = Hacl_Bignum64_mod_inv_limb(nh[0]);
 
-  /* ossl_bn_mul(a, b, c, ctx); */
-  /* hacl_bn_mul(nLen, ah, bh, ch); */
-  /* bn_compare_and_print(nBytes + nBytes, c, ch); */
+  BN_MONT_CTX *mont = NULL;
+  mont = BN_MONT_CTX_new();
+  BN_MONT_CTX_set(mont, n, ctx);
 
-  /* ossl_bn_sqr(a, c, ctx); */
-  /* hacl_bn_sqr(nLen, ah, ch); */
-  /* bn_compare_and_print(nBytes + nBytes, c, ch); */
+  /* ossl_bn_mont_mul(a, b, c, mont, ctx); */
+  /* hacl_bn_mont_mul(nLen, nh, mu, ah, bh, ch); */
+  /* bn_compare_and_print(nBytes, c, ch); */
 
-  /* ossl_bn_mul(a, a, c, ctx); */
-  /* hacl_bn_mul(nLen, ah, ah, ch); */
-  /* bn_compare_and_print(nBytes + nBytes, c, ch); */
+  /* ossl_bn_mont_sqr(a, c, mont, ctx); */
+  /* hacl_bn_mont_sqr(nLen, nh, mu, ah, ch); */
+  /* bn_compare_and_print(nBytes, c, ch); */
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_mul(nLen, ah, bh, ch);
+    hacl_bn_mont_mul(nLen, nh, mu, ah, bh, ch);
   }
 
   t1 = clock();
   c1 = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_mul(nLen, ah, bh, ch);
+    hacl_bn_mont_mul(nLen, nh, mu, ah, bh, ch);
   }
   c2 = cpucycles_end();
   t2 = clock();
@@ -123,13 +126,13 @@ void test_mul(int nBits){
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    ossl_bn_mul(a, b, c, ctx);
+    ossl_bn_mont_mul(a, b, c, mont, ctx);
   }
 
   t1 = clock();
   c1 = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    ossl_bn_mul(a, b, c, ctx);
+    ossl_bn_mont_mul(a, b, c, mont, ctx);
   }
   c2 = cpucycles_end();
   t2 = clock();
@@ -143,36 +146,39 @@ void test_mul(int nBits){
 }
 
 
-void test_sqr(int nBits){
+void test_mont_sqr(int nBits){
   cycles c1,c2;
   clock_t t1,t2;
 
   BN_CTX *ctx = BN_CTX_new();
-  BIGNUM *a = NULL, *c = NULL;
+  BIGNUM *a = NULL, *n = NULL, *c = NULL;
   a = BN_new();
+  n = BN_new();
   c = BN_new();
 
   int nBytes = (nBits - 1) / 8 + 1;
   int nLen = (nBits - 1) / 64 + 1;
 
-  BN_rand(a, nBits, 1, 0);
+  BN_rand(n, nBits, 1, 1);
+  BN_rand_range(a, n);
 
   uint64_t *ah = bn_ossl_to_hacl(nBytes, a);
-  uint64_t ch[nLen + nLen];
+  uint64_t *nh = bn_ossl_to_hacl(nBytes, n);
+  uint64_t ch[nLen];
+  uint64_t mu = Hacl_Bignum64_mod_inv_limb(nh[0]);
 
-  /* ossl_bn_sqr(a, c, ctx); */
-  /* hacl_bn_sqr(nLen, ah, ch); */
-  /* bn_compare_and_print(nBytes + nBytes, c, ch); */
-
+  BN_MONT_CTX *mont = NULL;
+  mont = BN_MONT_CTX_new();
+  BN_MONT_CTX_set(mont, n, ctx);
 
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_sqr(nLen, ah, ch);
+    hacl_bn_mont_sqr(nLen, nh, mu, ah, ch);
   }
 
   t1 = clock();
   c1 = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_sqr(nLen, ah, ch);
+    hacl_bn_mont_sqr(nLen, nh, mu, ah, ch);
   }
   c2 = cpucycles_end();
   t2 = clock();
@@ -181,13 +187,13 @@ void test_sqr(int nBits){
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    ossl_bn_sqr(a, c, ctx);
+    ossl_bn_mont_sqr(a, c, mont, ctx);
   }
 
   t1 = clock();
   c1 = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    ossl_bn_sqr(a, c, ctx);
+    ossl_bn_mont_sqr(a, c, mont, ctx);
   }
   c2 = cpucycles_end();
   t2 = clock();
@@ -206,28 +212,28 @@ int main() {
 
   //for (int i = 256; i <= 8192; i = i * 2)
   //test(i);
-  test_mul(256);
-  test_mul(512);
-  test_mul(1024);
-  test_mul(1536);
-  test_mul(2048);
-  test_mul(3072);
-  test_mul(4096);
-  test_mul(6144);
-  test_mul(8192);
+  test_mont_mul(256);
+  test_mont_mul(512);
+  test_mont_mul(1024);
+  test_mont_mul(1536);
+  test_mont_mul(2048);
+  test_mont_mul(3072);
+  test_mont_mul(4096);
+  test_mont_mul(6144);
+  test_mont_mul(8192);
 
   printf("\n-----------------------------------------------------\n");
   printf ("nBits\t || hacl\t || openssl\t || hacl / openssl \n");
 
-  test_sqr(256);
-  test_sqr(512);
-  test_sqr(1024);
-  test_sqr(1536);
-  test_sqr(2048);
-  test_sqr(3072);
-  test_sqr(4096);
-  test_sqr(6144);
-  test_sqr(8192);
+  test_mont_sqr(256);
+  test_mont_sqr(512);
+  test_mont_sqr(1024);
+  test_mont_sqr(1536);
+  test_mont_sqr(2048);
+  test_mont_sqr(3072);
+  test_mont_sqr(4096);
+  test_mont_sqr(6144);
+  test_mont_sqr(8192);
 
   return EXIT_SUCCESS;
 }
