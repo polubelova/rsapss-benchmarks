@@ -41,6 +41,9 @@ rsapss-boringssl-test.exe: librsapss.a rsapss-boringssl-test.o
 bignum-openssl-test.exe: libbignum.a bignum-openssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
 
+mul-openssl-test.exe: libbignum.a mul-openssl-test.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
+
 %.exe: %.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@
 
