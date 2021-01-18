@@ -95,7 +95,7 @@ void test_mont_mul(int nBits){
   uint64_t *bh = bn_ossl_to_hacl(nBytes, b);
   uint64_t *nh = bn_ossl_to_hacl(nBytes, n);
   uint64_t ch[nLen];
-  uint64_t mu = Hacl_Bignum64_mod_inv_limb(nh[0]);
+  uint64_t mu = Hacl_Bignum_ModInvLimb_mod_inv_uint64(nh[0]);
 
   BN_MONT_CTX *mont = NULL;
   mont = BN_MONT_CTX_new();
@@ -165,7 +165,7 @@ void test_mont_sqr(int nBits){
   uint64_t *ah = bn_ossl_to_hacl(nBytes, a);
   uint64_t *nh = bn_ossl_to_hacl(nBytes, n);
   uint64_t ch[nLen];
-  uint64_t mu = Hacl_Bignum64_mod_inv_limb(nh[0]);
+  uint64_t mu = Hacl_Bignum_ModInvLimb_mod_inv_uint64(nh[0]);
 
   BN_MONT_CTX *mont = NULL;
   mont = BN_MONT_CTX_new();

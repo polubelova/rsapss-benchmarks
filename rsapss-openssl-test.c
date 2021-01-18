@@ -10,6 +10,7 @@
 #include <time.h>
 
 #include "Hacl_RSAPSS.h"
+#include "Hacl_RSAPSS2048_SHA256.h"
 
 #include "test_helpers.h"
 #include "rsapss_vectors.h"
@@ -176,7 +177,6 @@ int main() {
   uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(modBits, eBits, dBits, test4_n, test4_e, test4_d);
   uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, test4_n, test4_e);
 
-  ok = true;
   for (int j = 0; j < ROUNDS; j++) {
     Hacl_RSAPSS_rsapss_sign(Spec_Hash_Definitions_SHA2_256, modBits, eBits, dBits, skey, 0U, NULL, vectors[3].msgLen, vectors[3].msg, comp);
     res = res ^ comp[0];
@@ -250,15 +250,56 @@ int main() {
   double diff4 = t2 - t1;
   uint64_t cyc4 = b - a;
 
+
+  for (int j = 0; j < ROUNDS; j++) {
+    Hacl_RSAPSS2048_SHA256_rsapss_sign(eBits, dBits, skey, 0U, NULL, vectors[3].msgLen, vectors[3].msg, comp);
+    res = res ^ comp[0];
+  }
+
+  t1 = clock();
+  a = cpucycles_begin();
+  for (int j = 0; j < ROUNDS; j++) {
+    Hacl_RSAPSS2048_SHA256_rsapss_sign(eBits, dBits, skey, 0U, NULL, vectors[3].msgLen, vectors[3].msg, comp);
+    res = res ^ comp[0];
+  }
+  b = cpucycles_end();
+  t2 = clock();
+  double diff5 = t2 - t1;
+  uint64_t cyc5 = b - a;
+
+
+
+  for (int j = 0; j < ROUNDS; j++) {
+    int r = Hacl_RSAPSS2048_SHA256_rsapss_verify(eBits, pkey, 0U, 256U, comp, vectors[3].msgLen, vectors[3].msg);
+    res = res ^ r;
+  }
+
+  t1 = clock();
+  a = cpucycles_begin();
+  for (int j = 0; j < ROUNDS; j++) {
+    int r = Hacl_RSAPSS2048_SHA256_rsapss_verify(eBits, pkey, 0U, 256U, comp, vectors[3].msgLen, vectors[3].msg);
+    res = res ^ r;
+  }
+  b = cpucycles_end();
+  t2 = clock();
+  double diff6 = t2 - t1;
+  uint64_t cyc6 = b - a;
+
+
   uint64_t count = ROUNDS * SIZE;
   printf("\nHACL* RSAPSS signature\n"); print_time(count,diff1,cyc1);
   printf("\nHACL* RSAPSS verification\n"); print_time(count,diff2,cyc2);
   printf("\nOpenSSL RSAPSS signature\n"); print_time(count,diff3,cyc3);
   printf("\nOpenSSL RSAPSS verification\n"); print_time(count,diff4,cyc4);
+  printf("\nHACL* RSAPSS signature (specialized)\n"); print_time(count,diff5,cyc5);
+  printf("\nHACL* RSAPSS verification (specialized)\n"); print_time(count,diff6,cyc6);
 
   printf("\nratio signature hacl/openssl %8.2f\n", (double)cyc1/cyc3);
   printf("\nratio verification hacl/openssl %8.2f\n", (double)cyc2/cyc4);
-
+  printf("\nratio signature hacl/specialized %8.2f\n", (double)cyc1/cyc5);
+  printf("\nratio verification hacl/specialized %8.2f\n", (double)cyc2/cyc6);
+  printf("\nratio signature specialized/openssl %8.2f\n", (double)cyc5/cyc3);
+  printf("\nratio verification specialized/openssl %8.2f\n", (double)cyc6/cyc4);
 
   if (ok) return EXIT_SUCCESS;
   else return EXIT_FAILURE;

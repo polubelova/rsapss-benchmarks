@@ -52,7 +52,7 @@ void ossl_bn_mod_exp_ct(BIGNUM *a, BIGNUM *b, BIGNUM *n, BIGNUM *c, BN_CTX *ctx)
 }
 
 void hacl_bn_mod_exp_ct(uint32_t len, uint64_t *n, uint64_t *a, uint32_t bBits, uint64_t *b, uint32_t l, uint64_t *r2, uint64_t *res){
-  Hacl_Bignum64_bn_mod_exp_fw_precompr2_ct(len, n, a, bBits, b, l, r2, res);
+  Hacl_Bignum64_bn_mod_exp_fw_ct_precompr2(len, n, a, bBits, b, l, r2, res);
   /* hacl_print(8*len, a); */
   /* hacl_print(8*len, b); */
   /* hacl_print(8*len, res); */
