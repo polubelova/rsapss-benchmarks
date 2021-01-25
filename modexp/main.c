@@ -102,7 +102,18 @@ static inline int name(size_t len) \
 } while (0)
 
 
-enum { WARMUP = 500, TRIALS = 1000, IDLE = 1 * 1000, DOUBLING_STEPS = 5 };
+#define do_all() do { \
+    	do_it(openssl); \
+	do_it(openssl_no_mulx); \
+	do_it(openssl_c); \
+	do_it(gmp); \
+	do_it(gmp_c); \
+	do_it(hacl_fw); \
+	do_it(hacl_bm); \
+} while (0)
+
+
+enum { WARMUP = 5, TRIALS = 50, IDLE = 1 * 1000, DOUBLING_STEPS = 5 };
 u8 dummy_out[2048];
 u8 input_ab[2048];
 u8 input_bb[2048];
@@ -165,125 +176,54 @@ int main()
 	input_b = pre_asm_BN_new();
 	input_n = pre_asm_BN_new();
 	//////////////////////////////////
+
 	j = 0;
-	s = 32; // modular size in bytes
+	s = 256; // modular size in bytes
 	s_value[j] = s;
 	update_values();
-
-	do_it(openssl);
-	do_it(openssl_no_mulx);
-	do_it(openssl_c);
-	do_it(gmp);
-	do_it(gmp_c);
-	do_it(hacl_fw);
-	do_it(hacl_bm);
-
+	do_all();
 	fprintf(stderr,"\n j = 0\n");
 	//////////////////////////////////
 
 	j = 1;
-	s = 64; // modular size in bytes
+	s = 384; // modular size in bytes
 	s_value[j] = s;
 	update_values();
-
-	do_it(openssl);
-	do_it(openssl_no_mulx);
-	do_it(openssl_c);
-	do_it(gmp);
-	do_it(gmp_c);
-	do_it(hacl_fw);
-	do_it(hacl_bm);
-
+	do_all();
 	fprintf(stderr,"\n j = 1\n");
 	//////////////////////////////////
 
 	j = 2;
-	s = 128; // modular size in bytes
+	s = 512; // modular size in bytes
 	s_value[j] = s;
 	update_values();
-
-	do_it(openssl);
-	do_it(openssl_no_mulx);
-	do_it(openssl_c);
-	do_it(gmp);
-	do_it(gmp_c);
-	do_it(hacl_fw);
-	do_it(hacl_bm);
-
+	do_all();
 	fprintf(stderr,"\n j = 2\n");
 	//////////////////////////////////
 
 	j = 3;
-	s = 256; // modular size in bytes
+	s = 768; // modular size in bytes
 	s_value[j] = s;
 	update_values();
-
-	do_it(openssl);
-	do_it(openssl_no_mulx);
-	do_it(openssl_c);
-	do_it(gmp);
-	do_it(gmp_c);
-	do_it(hacl_fw);
-	do_it(hacl_bm);
-
+	do_all();
 	fprintf(stderr,"\n j = 3\n");
 	//////////////////////////////////
 
 	j = 4;
-	s = 384; // modular size in bytes
+	s = 1024; // modular size in bytes
 	s_value[j] = s;
 	update_values();
-
-	do_it(openssl);
-	do_it(openssl_no_mulx);
-	do_it(openssl_c);
-	do_it(gmp);
-	do_it(gmp_c);
-	do_it(hacl_fw);
-	do_it(hacl_bm);
-
+	do_all();
 	fprintf(stderr,"\n j = 4\n");
 	//////////////////////////////////
 
 	j = 5;
-	s = 512; // modular size in bytes
+	s = 2048; // modular size in bytes
 	s_value[j] = s;
 	update_values();
-
-	do_it(openssl);
-	do_it(openssl_no_mulx);
-	do_it(openssl_c);
-	do_it(gmp);
-	do_it(gmp_c);
-	do_it(hacl_fw);
-	do_it(hacl_bm);
-
+	do_all();
 	fprintf(stderr,"\n j = 5\n");
 	//////////////////////////////////
-
-	/* j = 6; */
-	/* s = 768; // modular size in bytes */
-	/* s_value[j] = s; */
-	/* update_values(); */
-	/* do_all(); */
-	/* fprintf(stderr,"\n j = 6\n"); */
-	/* ////////////////////////////////// */
-
-	/* j = 7; */
-	/* s = 1024; // modular size in bytes */
-	/* s_value[j] = s; */
-	/* update_values(); */
-	/* do_all(); */
-	/* fprintf(stderr,"\n j = 7\n"); */
-	/* ////////////////////////////////// */
-
-	/* j = 8; */
-	/* s = 2048; // modular size in bytes */
-	/* s_value[j] = s; */
-	/* update_values(); */
-	/* do_all(); */
-	/* fprintf(stderr,"\n j = 8\n"); */
-	/* ////////////////////////////////// */
 
 	fprintf(stderr,"%11s","");
 	for (j = 0; j <= DOUBLING_STEPS; ++j) \
