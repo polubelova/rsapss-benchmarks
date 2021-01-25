@@ -25,9 +25,8 @@ git clone https://github.com/openssl/openssl
 ```
 
 - openssl-no-mulx
-To control the capability vector, one should clear the particular bit: https://www.openssl.org/docs/manmaster/man3/OPENSSL_ia32cap.html
-To disable the BMI2 instructions (e.g. MULX and RORX) and the ADCX and ADOX instructions, one needs to modify the bn_mod_exp_mont_consttime function
-from the https://github.com/openssl/openssl/blob/master/crypto/bn/bn_exp.c#L590 file:
+  * To control the capability vector, one should clear the particular bit: https://www.openssl.org/docs/manmaster/man3/OPENSSL_ia32cap.html
+  * To disable the BMI2 instructions (e.g. MULX and RORX) and the ADCX and ADOX instructions, one needs to modify the bn_mod_exp_mont_consttime function from the https://github.com/openssl/openssl/blob/master/crypto/bn/bn_exp.c#L590 file:
 ```
     extern unsigned int OPENSSL_ia32cap_P[4];
     OPENSSL_ia32cap_P[2] &= ~0x100; //BMI2 instructions, e.g. MULX and RORX
@@ -40,7 +39,7 @@ git clone https://github.com/openssl/openssl
 ```
 
 - gmp
-Download gmp from https://gmplib.org/#DOWNLOAD
+  * Download gmp from https://gmplib.org/#DOWNLOAD
 ```
 ./configure && make
 make check
@@ -48,7 +47,7 @@ make install
 ```
 
 - gmp-no-asm
-Download gmp from https://gmplib.org/#DOWNLOAD
+  * Download gmp from https://gmplib.org/#DOWNLOAD
 ```
 ./configure --disable-assembly && make
 make check
