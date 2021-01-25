@@ -1,0 +1,20 @@
+#!/bin/bash
+
+nm libcrypto_asm.a | grep " D \| B \| U \| T \| R " | awk -v name="pre_asm" '{print $3" "name"_"$3}' > symbols_to_rename && \
+objcopy --redefine-syms=symbols_to_rename libcrypto_asm.a libcrypto_asm_pre.a && \
+objcopy --redefine-sym OPENSSL_ia32cap_P=pre_asm_OPENSSL_ia32cap_P libcrypto_asm_pre.a libcrypto_asm_pre.a && \
+rm symbols_to_rename && \
+
+nm libcrypto_no_asm.a | grep " D \| B \| U \| T \| R " | awk -v name="no_asm" '{print $3" "name"_"$3}' > symbols_to_rename && \
+objcopy --redefine-syms=symbols_to_rename libcrypto_no_asm.a libcrypto_no_asm_pre.a && \
+objcopy --redefine-sym OPENSSL_ia32cap_P=no_asm_OPENSSL_ia32cap_P libcrypto_no_asm_pre.a libcrypto_no_asm_pre.a && \
+rm symbols_to_rename && \
+
+nm libcrypto_no_mulx.a | grep " D \| B \| U \| T \| R " | awk -v name="no_mulx" '{print $3" "name"_"$3}' > symbols_to_rename && \
+objcopy --redefine-syms=symbols_to_rename libcrypto_no_mulx.a libcrypto_no_mulx_pre.a && \
+objcopy --redefine-sym OPENSSL_ia32cap_P=no_mulx_OPENSSL_ia32cap_P libcrypto_no_mulx_pre.a libcrypto_no_mulx_pre.a && \
+rm symbols_to_rename && \
+
+nm libgmp_no_asm.a | grep " D \| B \| U \| T \| R " | awk -v name="no_asm" '{print $3" "name"_"$3}' > symbols_to_rename && \
+objcopy --redefine-syms=symbols_to_rename libgmp_no_asm.a libgmp_no_asm_pre.a && \
+rm symbols_to_rename
