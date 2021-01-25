@@ -7,7 +7,7 @@ Required libraries
 - libgmp_no_asm.a (compiled with the `disable-assembly` flag)
 - libbignum.a (from hacl-star/code/bignum)
 
-To get `libcrypto_no_asm_pre.a`, `libcrypto_no_mulx_pre.a`, and `libgmp_mo_asm_pre.a`, one needs to run `./rename-libs`
+To get `libcrypto_no_asm_pre.a`, `libcrypto_asm_pre.a`, `libcrypto_no_mulx_pre.a`, and `libgmp_no_asm_pre.a`, one needs to run `./rename-libs`
 
 
 INSTALL
