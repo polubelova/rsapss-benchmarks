@@ -20,6 +20,7 @@
 #include "openssl/evp.h"
 #include "openssl/rsa.h"
 #include "openssl/sha.h"
+#include "openssl/digest.h"
 #include "openssl/bn.h"
 
 #define ROUNDS 1000
@@ -81,42 +82,71 @@ openssl_sign(
   size_t sig_len
 )
 {
-  int status = 0;
-  unsigned char pDigest[32];
-  unsigned char EM[sig_len];
+  const EVP_MD *digest_algo;
+  unsigned char md[128];
+  unsigned digest_len;
+  EVP_MD_CTX *md_ctx;
 
-  /* hash the message */
-  SHA256(msg, msg_len, pDigest);
+  digest_algo = EVP_sha256();
+  md_ctx = EVP_MD_CTX_new();
+  EVP_DigestInit(md_ctx, digest_algo);
+  EVP_DigestUpdate(md_ctx, msg, msg_len);
+  EVP_DigestFinal(md_ctx, md, &digest_len);
 
-  /* compute the PSS padded data */
-  status = RSA_padding_add_PKCS1_PSS(pRsaKey, EM, pDigest, EVP_sha256(), salt_len /* maximum salt length*/);
+  EVP_PKEY *pkey = NULL;
+  pkey = EVP_PKEY_new();
+  EVP_PKEY_set1_RSA(pkey, pRsaKey);
 
-  /* perform digital signature */
-  status = RSA_private_encrypt(sig_len, EM, sig, pRsaKey, RSA_NO_PADDING);
-  return status;
+  EVP_PKEY_CTX *pkey_ctx;
+  pkey_ctx = EVP_PKEY_CTX_new(pkey, NULL);
+
+  EVP_PKEY_sign_init(pkey_ctx);
+  EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PSS_PADDING);
+  EVP_PKEY_CTX_set_rsa_pss_saltlen(pkey_ctx, salt_len);
+  EVP_PKEY_CTX_set_signature_md(pkey_ctx, digest_algo);
+  EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, digest_algo);
+
+  int ret = EVP_PKEY_sign(pkey_ctx, sig, &sig_len, md, digest_len);
+
+  return ret;
 }
 
 int
 openssl_verify(
   RSA* pRsaKey,
+  size_t salt_len,
   uint8_t* msg,
   uint32_t msg_len,
   uint8_t* sig,
   size_t sig_len
 )
 {
-  int status = 0;
-  unsigned char pDigest[32];
-  unsigned char EM[sig_len];
-  unsigned char pDecrypted[sig_len];
+  const EVP_MD *digest_algo;
+  unsigned char md[128];
+  unsigned digest_len;
+  EVP_MD_CTX *md_ctx;
 
-  /* hash the message */
-  SHA256(msg, msg_len, pDigest);
+  digest_algo = EVP_sha256();
+  md_ctx = EVP_MD_CTX_new();
+  EVP_DigestInit(md_ctx, digest_algo);
+  EVP_DigestUpdate(md_ctx, msg, msg_len);
+  EVP_DigestFinal(md_ctx, md, &digest_len);
 
-  status = RSA_public_decrypt(sig_len, sig, pDecrypted, pRsaKey, RSA_NO_PADDING);
-  /* verify the data */
-  status = RSA_verify_PKCS1_PSS(pRsaKey, pDigest, EVP_sha256(), pDecrypted, -2 /* salt length recovered from signature*/);
-  return status;
+  EVP_PKEY *pkey = NULL;
+  pkey = EVP_PKEY_new();
+  EVP_PKEY_set1_RSA(pkey, pRsaKey);
+
+  EVP_PKEY_CTX *pkey_ctx;
+  pkey_ctx = EVP_PKEY_CTX_new(pkey, NULL);
+
+  EVP_PKEY_verify_init(pkey_ctx);
+  EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PSS_PADDING);
+  EVP_PKEY_CTX_set_rsa_pss_saltlen(pkey_ctx, salt_len);
+  EVP_PKEY_CTX_set_signature_md(pkey_ctx, digest_algo);
+  EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, digest_algo);
+
+  int ret = EVP_PKEY_verify(pkey_ctx, sig, sig_len, md, digest_len);
+  return ret;
 }
 
 bool print_result(uint32_t len, uint8_t* comp, uint8_t* exp) {
@@ -137,6 +167,8 @@ bool print_test(
   uint8_t *sgnt_expected
 ){
   uint32_t nbLen = (modBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U;
+  uint32_t ebLen = (eBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U;
+  uint32_t dbLen = (dBits - (uint32_t)1U) / (uint32_t)8U + (uint32_t)1U;
 
   uint8_t sgnt[nbLen];
   memset(sgnt, 0U, nbLen * sizeof (sgnt[0U]));
@@ -151,6 +183,12 @@ bool print_test(
   bool ver = Hacl_RSAPSS_rsapss_verify(Spec_Hash_Definitions_SHA2_256, modBits, eBits, pkey, saltLen, nbLen, sgnt, msgLen, msg);
   if (ver) printf("Success!\n");
   ok = ok && ver;
+
+  printf("Openssl verify Result\n");
+  RSA* privkey = createPrivateKey(nb, nbLen, eb, ebLen, db, dbLen);
+  RSA* pubkey = createPublicKey(nb, nbLen, eb, ebLen);
+  bool ver_openssl = openssl_verify(pubkey, saltLen, msg, msgLen, sgnt_expected, nbLen);
+  if (ver_openssl) printf("Success!\n"); else printf("Failure :(\n");
 
   return ok;
 }
@@ -235,14 +273,14 @@ int main() {
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    int r = openssl_verify(pubkey, vectors[3].msg, 128U, comp, 256U);
+    int r = openssl_verify(pubkey, 0U, vectors[3].msg, 128U, comp, 256U);
     res = res ^ r;
   }
 
   t1 = clock();
   a = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    int r = openssl_verify(pubkey, vectors[3].msg, 128U, comp, 256U);
+    int r = openssl_verify(pubkey, 0U, vectors[3].msg, 128U, comp, 256U);
     res = res ^ r;
   }
   b = cpucycles_end();

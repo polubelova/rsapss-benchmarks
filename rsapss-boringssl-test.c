@@ -81,6 +81,17 @@ boringssl_sign(
   size_t sig_len
 )
 {
+  const EVP_MD *digest_algo;
+  unsigned char md[128];
+  unsigned digest_len;
+  EVP_MD_CTX *md_ctx;
+
+  digest_algo = EVP_sha256();
+  md_ctx = EVP_MD_CTX_new();
+  EVP_DigestInit(md_ctx, digest_algo);
+  EVP_DigestUpdate(md_ctx, msg, msg_len);
+  EVP_DigestFinal(md_ctx, md, &digest_len);
+
   EVP_PKEY *pkey = NULL;
   pkey = EVP_PKEY_new();
   EVP_PKEY_set1_RSA(pkey, pRsaKey);
@@ -88,14 +99,14 @@ boringssl_sign(
   EVP_PKEY_CTX *pkey_ctx;
   pkey_ctx = EVP_PKEY_CTX_new(pkey, NULL);
 
-  EVP_MD_CTX md_ctx;
-  EVP_MD_CTX_init(&md_ctx);
-
-  EVP_DigestSignInit(&md_ctx, &pkey_ctx, EVP_sha256(), NULL, pkey);
+  EVP_PKEY_sign_init(pkey_ctx);
   EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PSS_PADDING);
-  EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, EVP_sha256());
   EVP_PKEY_CTX_set_rsa_pss_saltlen(pkey_ctx, salt_len);
-  int ret = EVP_DigestSign(&md_ctx, sig, &sig_len, msg, msg_len);
+  EVP_PKEY_CTX_set_signature_md(pkey_ctx, digest_algo);
+  EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, digest_algo);
+
+  int ret = EVP_PKEY_sign(pkey_ctx, sig, &sig_len, md, digest_len);
+
   return ret;
 }
 
@@ -110,6 +121,17 @@ boringssl_verify(
   size_t sig_len
 )
 {
+  const EVP_MD *digest_algo;
+  unsigned char md[128];
+  unsigned digest_len;
+  EVP_MD_CTX *md_ctx;
+
+  digest_algo = EVP_sha256();
+  md_ctx = EVP_MD_CTX_new();
+  EVP_DigestInit(md_ctx, digest_algo);
+  EVP_DigestUpdate(md_ctx, msg, msg_len);
+  EVP_DigestFinal(md_ctx, md, &digest_len);
+
   EVP_PKEY *pkey = NULL;
   pkey = EVP_PKEY_new();
   EVP_PKEY_set1_RSA(pkey, pRsaKey);
@@ -117,14 +139,13 @@ boringssl_verify(
   EVP_PKEY_CTX *pkey_ctx;
   pkey_ctx = EVP_PKEY_CTX_new(pkey, NULL);
 
-  EVP_MD_CTX md_ctx;
-  EVP_MD_CTX_init(&md_ctx);
-
-  EVP_DigestVerifyInit(&md_ctx, &pkey_ctx, EVP_sha256(), NULL, pkey);
+  EVP_PKEY_verify_init(pkey_ctx);
   EVP_PKEY_CTX_set_rsa_padding(pkey_ctx, RSA_PKCS1_PSS_PADDING);
-  EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, EVP_sha256());
   EVP_PKEY_CTX_set_rsa_pss_saltlen(pkey_ctx, salt_len);
-  int ret = EVP_DigestVerify(&md_ctx, sig, sig_len, msg, msg_len);
+  EVP_PKEY_CTX_set_signature_md(pkey_ctx, digest_algo);
+  EVP_PKEY_CTX_set_rsa_mgf1_md(pkey_ctx, digest_algo);
+
+  int ret = EVP_PKEY_verify(pkey_ctx, sig, sig_len, md, digest_len);
   return ret;
 }
 
