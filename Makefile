@@ -29,26 +29,11 @@ libbignum.a:
 	OTHERFLAGS="--admit_smt_queries true" make -C $(HACL_HOME)/code/bignum dist/libbignum.a && \
 	cp $(HACL_HOME)/code/bignum/dist/libbignum.a libbignum.a
 
-rsapss-openssl-test.exe: librsapss.a rsapss-openssl-test.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
-
-rsapss-openssl-test-4096.exe: librsapss.a rsapss-openssl-test-4096.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
-
-rsapss-boringssl-test.exe: librsapss.a rsapss-boringssl-test.o
+rsapss-boringssl-test.exe: librsapss.a rsapss-openssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(BORINGSSL_HOME)/build/crypto/libcrypto.a -lpthread -ldl
 
-bignum-openssl-test.exe: libbignum.a bignum-openssl-test.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
-
-mul-openssl-test.exe: libbignum.a mul-openssl-test.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
-
-mont-openssl-test.exe: libbignum.a mont-openssl-test.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
-
-%.exe: %.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@
+%.exe: libbignum.a librsapss.a %.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
 
 clean:
 	rm -rf *.o *.d *.exe *.a
