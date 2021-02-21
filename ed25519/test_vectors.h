@@ -1,0 +1,48 @@
+#pragma once
+
+typedef struct {
+  uint8_t *input;
+  size_t input_len;
+  uint8_t skey[32];
+  uint8_t pkey[32];
+  uint8_t signature[64];
+} ed25519_test_vector;
+
+static uint8_t input1[] = { };
+
+
+static ed25519_test_vector vectors[] = {
+  {
+    .input = input1,
+    .input_len = sizeof(input1)/sizeof(uint8_t),
+    .skey = {
+    (uint8_t)0x9dU, (uint8_t)0x61U, (uint8_t)0xb1U, (uint8_t)0x9dU, (uint8_t)0xefU, (uint8_t)0xfdU,
+    (uint8_t)0x5aU, (uint8_t)0x60U, (uint8_t)0xbaU, (uint8_t)0x84U, (uint8_t)0x4aU, (uint8_t)0xf4U,
+    (uint8_t)0x92U, (uint8_t)0xecU, (uint8_t)0x2cU, (uint8_t)0xc4U, (uint8_t)0x44U, (uint8_t)0x49U,
+    (uint8_t)0xc5U, (uint8_t)0x69U, (uint8_t)0x7bU, (uint8_t)0x32U, (uint8_t)0x69U, (uint8_t)0x19U,
+    (uint8_t)0x70U, (uint8_t)0x3bU, (uint8_t)0xacU, (uint8_t)0x03U, (uint8_t)0x1cU, (uint8_t)0xaeU,
+    (uint8_t)0x7fU, (uint8_t)0x60U
+    },
+    .pkey = {
+    (uint8_t)0xd7U, (uint8_t)0x5aU, (uint8_t)0x98U, (uint8_t)0x01U, (uint8_t)0x82U, (uint8_t)0xb1U,
+    (uint8_t)0x0aU, (uint8_t)0xb7U, (uint8_t)0xd5U, (uint8_t)0x4bU, (uint8_t)0xfeU, (uint8_t)0xd3U,
+    (uint8_t)0xc9U, (uint8_t)0x64U, (uint8_t)0x07U, (uint8_t)0x3aU, (uint8_t)0x0eU, (uint8_t)0xe1U,
+    (uint8_t)0x72U, (uint8_t)0xf3U, (uint8_t)0xdaU, (uint8_t)0xa6U, (uint8_t)0x23U, (uint8_t)0x25U,
+    (uint8_t)0xafU, (uint8_t)0x02U, (uint8_t)0x1aU, (uint8_t)0x68U, (uint8_t)0xf7U, (uint8_t)0x07U,
+    (uint8_t)0x51U, (uint8_t)0x1aU
+    },
+    .signature = {
+    (uint8_t)0xe5U, (uint8_t)0x56U, (uint8_t)0x43U, (uint8_t)0x00U, (uint8_t)0xc3U, (uint8_t)0x60U,
+    (uint8_t)0xacU, (uint8_t)0x72U, (uint8_t)0x90U, (uint8_t)0x86U, (uint8_t)0xe2U, (uint8_t)0xccU,
+    (uint8_t)0x80U, (uint8_t)0x6eU, (uint8_t)0x82U, (uint8_t)0x8aU, (uint8_t)0x84U, (uint8_t)0x87U,
+    (uint8_t)0x7fU, (uint8_t)0x1eU, (uint8_t)0xb8U, (uint8_t)0xe5U, (uint8_t)0xd9U, (uint8_t)0x74U,
+    (uint8_t)0xd8U, (uint8_t)0x73U, (uint8_t)0xe0U, (uint8_t)0x65U, (uint8_t)0x22U, (uint8_t)0x49U,
+    (uint8_t)0x01U, (uint8_t)0x55U, (uint8_t)0x5fU, (uint8_t)0xb8U, (uint8_t)0x82U, (uint8_t)0x15U,
+    (uint8_t)0x90U, (uint8_t)0xa3U, (uint8_t)0x3bU, (uint8_t)0xacU, (uint8_t)0xc6U, (uint8_t)0x1eU,
+    (uint8_t)0x39U, (uint8_t)0x70U, (uint8_t)0x1cU, (uint8_t)0xf9U, (uint8_t)0xb4U, (uint8_t)0x6bU,
+    (uint8_t)0xd2U, (uint8_t)0x5bU, (uint8_t)0xf5U, (uint8_t)0xf0U, (uint8_t)0x59U, (uint8_t)0x5bU,
+    (uint8_t)0xbeU, (uint8_t)0x24U, (uint8_t)0x65U, (uint8_t)0x51U, (uint8_t)0x41U, (uint8_t)0x43U,
+    (uint8_t)0x8eU, (uint8_t)0x7aU, (uint8_t)0x10U, (uint8_t)0x0bU
+    }
+  }
+};
