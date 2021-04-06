@@ -33,7 +33,7 @@ void print_bytes(uint32_t len, uint8_t *in){
 }
 
 
-RSA*
+EVP_PKEY*
 createPrivateKey(
   uint8_t* kN,
   uint32_t kN_len,
@@ -54,10 +54,15 @@ createPrivateKey(
 
   RSA_set0_key(pRsaKey, n, e, d);
 
-  return pRsaKey;
+  EVP_PKEY *pkey = NULL;
+  pkey = EVP_PKEY_new();
+  EVP_PKEY_set1_RSA(pkey, pRsaKey);
+
+  return pkey;
 }
 
-RSA*
+
+EVP_PKEY*
 createPublicKey(
   uint8_t* kN,
   uint32_t kN_len,
@@ -74,8 +79,13 @@ createPublicKey(
 
   RSA_set0_key(pRsaKey, n, e, NULL);
 
-  return pRsaKey;
+  EVP_PKEY *pkey = NULL;
+  pkey = EVP_PKEY_new();
+  EVP_PKEY_set1_RSA(pkey, pRsaKey);
+
+  return pkey;
 }
+
 
 void generate_rsakey(
   uint32_t modBits,
@@ -108,7 +118,7 @@ void generate_rsakey(
 
 int
 openssl_sign(
-  RSA* pRsaKey,
+  EVP_PKEY *pkey,
   size_t salt_len,
   uint8_t* msg,
   uint32_t msg_len,
@@ -126,10 +136,6 @@ openssl_sign(
   EVP_DigestInit(md_ctx, digest_algo);
   EVP_DigestUpdate(md_ctx, msg, msg_len);
   EVP_DigestFinal(md_ctx, md, &digest_len);
-
-  EVP_PKEY *pkey = NULL;
-  pkey = EVP_PKEY_new();
-  EVP_PKEY_set1_RSA(pkey, pRsaKey);
 
   EVP_PKEY_CTX *pkey_ctx;
   pkey_ctx = EVP_PKEY_CTX_new(pkey, NULL);
@@ -145,9 +151,10 @@ openssl_sign(
   return ret;
 }
 
+
 int
 openssl_verify(
-  RSA* pRsaKey,
+  EVP_PKEY *pkey,
   size_t salt_len,
   uint8_t* msg,
   uint32_t msg_len,
@@ -166,10 +173,6 @@ openssl_verify(
   EVP_DigestUpdate(md_ctx, msg, msg_len);
   EVP_DigestFinal(md_ctx, md, &digest_len);
 
-  EVP_PKEY *pkey = NULL;
-  pkey = EVP_PKEY_new();
-  EVP_PKEY_set1_RSA(pkey, pRsaKey);
-
   EVP_PKEY_CTX *pkey_ctx;
   pkey_ctx = EVP_PKEY_CTX_new(pkey, NULL);
 
@@ -182,6 +185,7 @@ openssl_verify(
   int ret = EVP_PKEY_verify(pkey_ctx, sig, sig_len, md, digest_len);
   return ret;
 }
+
 
 bool print_result(uint32_t len, uint8_t* comp, uint8_t* exp) {
   return compare_and_print(len, comp, exp);
@@ -219,8 +223,8 @@ bool print_test(
   ok = ok && ver;
 
   printf("Openssl verify Result\n");
-  RSA* privkey = createPrivateKey(nb, nbLen, eb, ebLen, db, dbLen);
-  RSA* pubkey = createPublicKey(nb, nbLen, eb, ebLen);
+  EVP_PKEY* privkey = createPrivateKey(nb, nbLen, eb, ebLen, db, dbLen);
+  EVP_PKEY* pubkey = createPublicKey(nb, nbLen, eb, ebLen);
   bool ver_openssl = openssl_verify(pubkey, saltLen, msg, msgLen, sgnt_expected, nbLen);
   if (ver_openssl) printf("Success!\n"); else printf("Failure :(\n");
 
@@ -246,7 +250,7 @@ void test_sign(uint32_t modBits){
 
   generate_rsakey(modBits, test_n, eBits, test_e, dBits, test_d);
   uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(modBits, eBits, dBits, test_n, test_e, test_d);
-  RSA* privkey = createPrivateKey(test_n, nbLen, test_e, ebLen, test_d, dbLen);
+  EVP_PKEY* privkey = createPrivateKey(test_n, nbLen, test_e, ebLen, test_d, dbLen);
 
   uint8_t comp[nbLen];
   uint8_t comp1[nbLen];
@@ -321,9 +325,9 @@ void test_verify(uint32_t modBits){
 
   generate_rsakey(modBits, test_n, eBits, test_e, dBits, test_d);
   uint64_t *skey = Hacl_RSAPSS_new_rsapss_load_skey(modBits, eBits, dBits, test_n, test_e, test_d);
-  RSA* privkey = createPrivateKey(test_n, nbLen, test_e, ebLen, test_d, dbLen);
+  EVP_PKEY* privkey = createPrivateKey(test_n, nbLen, test_e, ebLen, test_d, dbLen);
   uint64_t *pkey = Hacl_RSAPSS_new_rsapss_load_pkey(modBits, eBits, test_n, test_e);
-  RSA* pubkey = createPublicKey(test_n, nbLen, test_e, ebLen);
+  EVP_PKEY* pubkey = createPublicKey(test_n, nbLen, test_e, ebLen);
 
   uint8_t comp[nbLen];
   uint8_t comp1[nbLen];
@@ -398,19 +402,19 @@ int main() {
   printf("\n RSAPSS sign \n");
   printf("\n nBits\t || hacl\t || openssl\t || hacl / openssl \n");
   test_sign(2048U);
-  //test_sign(3072U);
-  //test_sign(4096U);
-  //test_sign(6144U);
-  //test_sign(8192U);
+  test_sign(3072U);
+  test_sign(4096U);
+  test_sign(6144U);
+  test_sign(8192U);
 
   printf("\n ---------------------------------------------------- \n");
   printf("\n RSAPSS verify \n");
   printf("\n nBits\t || hacl\t || openssl\t || hacl / openssl \n");
   test_verify(2048U);
-  //test_verify(3072U);
-  //test_verify(4096U);
-  //test_verify(6144U);
-  //test_verify(8192U);
+  test_verify(3072U);
+  test_verify(4096U);
+  test_verify(6144U);
+  test_verify(8192U);
 
   printf("\n ---------------------------------------------------- \n");
 
