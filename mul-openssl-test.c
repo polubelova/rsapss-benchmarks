@@ -51,11 +51,11 @@ void ossl_bn_sqr(BIGNUM *a, BIGNUM *c, BN_CTX *ctx){
 
 
 void hacl_bn_mul(uint32_t len, uint64_t *a, uint64_t *b, uint64_t *res){
-  Hacl_Bignum64_bn_mul(len, a, b, res);
+  Hacl_Bignum64_mul(len, a, b, res);
 }
 
 void hacl_bn_sqr(uint32_t len, uint64_t *a, uint64_t *res){
-  Hacl_Bignum64_bn_sqr(len, a, res);
+  Hacl_Bignum64_sqr(len, a, res);
 }
 
 uint64_t *bn_ossl_to_hacl(uint32_t nBytes, BIGNUM *a){
