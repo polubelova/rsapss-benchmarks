@@ -1,7 +1,9 @@
 #include "kbench-common.h"
 #include "gmp.h"
+#include "Hacl_Bignum64.h"
 
-void modexp_gmp(uint32_t len, uint8_t* cb, uint8_t* ab, uint8_t* bb, uint8_t* nb, uint8_t* r2b){
+void modexp_gmp(uint32_t len, uint8_t* cb, uint8_t* ab, uint8_t* bb, uint8_t* nb,
+		Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64 *k){
   // c == a ^^ b % n
   mpz_t n, a, b, c;
   mpz_init(n);

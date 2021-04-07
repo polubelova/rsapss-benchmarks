@@ -1,9 +1,11 @@
 #include "kbench-common.h"
 #include "gmp.h"
+#include "Hacl_Bignum64.h"
 
 extern void no_asm___gmpz_powm_sec(mpz_ptr, mpz_srcptr, mpz_srcptr, mpz_srcptr);
 
-void modexp_gmp_c(uint32_t len, uint8_t* cb, uint8_t* ab, uint8_t* bb, uint8_t* nb, uint8_t* r2b){
+void modexp_gmp_c(uint32_t len, uint8_t* cb, uint8_t* ab, uint8_t* bb, uint8_t* nb,
+		  Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64 *k){
   // c == a ^^ b % n
   mpz_t n, a, b, c;
   mpz_init(n);

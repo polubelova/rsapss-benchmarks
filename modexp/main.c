@@ -15,15 +15,7 @@
 #include <time.h>
 
 #include "openssl/bn.h"
-
-extern void Hacl_Bignum64_bn_from_bytes_be(uint32_t len, uint8_t *b, uint64_t *res);
-extern void Hacl_Bignum64_bn_to_bytes_be(uint32_t len, uint64_t *b, uint8_t *res);
-extern void Hacl_Bignum64_bn_precomp_r2_mod_n(uint32_t len, uint32_t nBits, uint64_t *n, uint64_t *res);
-
-extern BIGNUM *pre_asm_BN_new(void);
-extern int pre_asm_BN_bn2binpad(const BIGNUM *a, unsigned char *to, int tolen);
-extern int pre_asm_BN_rand(BIGNUM *rnd, int bits, int top, int bottom);
-extern int pre_asm_BN_rand_range(BIGNUM *rnd, const BIGNUM *range);
+#include "Hacl_Bignum64.h"
 
 typedef uint8_t u8;
 typedef uint32_t u32;
@@ -47,10 +39,10 @@ static __inline__ cycles_t get_cycles(void)
 
 
 #define declare_it(name) \
-void modexp_ ## name(u32 len,  u8 *cb, const u8 *ab, const u8 *bb, const u8 *nb, const u8 *r2b); \
+void modexp_ ## name(u32 len,  u8 *cb, const u8 *ab, const u8 *bb, const u8 *nb, const Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64 *k); \
 static inline int name(size_t len) \
 { \
-  modexp_ ## name(len, dummy_out, input_ab, input_bb, input_nb, input_r2b);	\
+  modexp_ ## name(len, dummy_out, input_ab, input_bb, input_nb, input_k);	\
 }
 
 
@@ -90,47 +82,43 @@ static inline int name(size_t len) \
 
 
 #define update_values() do { \
-	pre_asm_BN_rand(input_n, 8 * s, 1, 1); \
-	pre_asm_BN_rand_range(input_a, input_n); \
-	pre_asm_BN_rand(input_b, 8 * s, 1, 0); \
-	pre_asm_BN_bn2binpad(input_a, input_ab, s); \
-	pre_asm_BN_bn2binpad(input_b, input_bb, s); \
-	pre_asm_BN_bn2binpad(input_n, input_nb, s); \
-	Hacl_Bignum64_bn_from_bytes_be(s, input_nb, input_nh); \
-	Hacl_Bignum64_bn_precomp_r2_mod_n(s / 8, 8 * s - 1, input_nh, input_r2h); \
-	Hacl_Bignum64_bn_to_bytes_be(s, input_r2h, input_r2b); \
+	BN_rand(input_n, 8 * s, 1, 1);	 \
+	BN_rand_range(input_a, input_n); \
+	BN_rand(input_b, 8 * s, 1, 0); \
+	BN_bn2binpad(input_a, input_ab, s); \
+	BN_bn2binpad(input_b, input_bb, s); \
+	BN_bn2binpad(input_n, input_nb, s); \
+	input_nh = Hacl_Bignum64_new_bn_from_bytes_be( s / 8, input_nb); \
+	input_k = Hacl_Bignum64_mont_ctx_init(s / 8, input_nh); \
 } while (0)
 
 
 #define do_all() do { \
     	do_it(openssl); \
-	do_it(openssl_no_mulx); \
-	do_it(openssl_c); \
-	do_it(gmp); \
-	do_it(gmp_c); \
-	do_it(hacl_fw); \
-	do_it(hacl_bm); \
+	do_it(openssl_no_mulx);			\
+	do_it(openssl_c);			\
+	do_it(gmp);				\
+	do_it(gmp_c);				\
+	do_it(hacl);				\
 } while (0)
 
 
-enum { WARMUP = 5, TRIALS = 50, IDLE = 1 * 1000, DOUBLING_STEPS = 5 };
+enum { WARMUP = 5, TRIALS = 50, IDLE = 1 * 1000, DOUBLING_STEPS = 2 };
 u8 dummy_out[2048];
 u8 input_ab[2048];
 u8 input_bb[2048];
 u8 input_nb[2048];
-u8 input_r2b[2048];
+Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64* input_k = NULL;
+u64* input_nh = NULL;
 
 BIGNUM *input_a = NULL, *input_b = NULL, *input_n = NULL;
-u64 input_nh[256];
-u64 input_r2h[256];
 
 declare_it(openssl)
 declare_it(openssl_no_mulx)
 declare_it(openssl_c)
 declare_it(gmp)
 declare_it(gmp_c)
-declare_it(hacl_fw)
-declare_it(hacl_bm)
+declare_it(hacl)
 
 static int compare_cycles(const void *a, const void *b)
 {
@@ -147,8 +135,7 @@ static bool verify(void)
 	test_it(openssl_c, {}, {});
 	test_it(gmp, {}, {});
 	test_it(gmp_c, {}, {});
-	test_it(hacl_fw, {}, {});
-	test_it(hacl_bm, {}, {});
+	test_it(hacl, {}, {});
 
 	return true;
 }
@@ -163,8 +150,7 @@ int main()
 	cycles_t median_openssl_c[DOUBLING_STEPS+1];
 	cycles_t median_gmp[DOUBLING_STEPS+1];
 	cycles_t median_gmp_c[DOUBLING_STEPS+1];
-	cycles_t median_hacl_fw[DOUBLING_STEPS+1];
-	cycles_t median_hacl_bm[DOUBLING_STEPS+1];
+	cycles_t median_hacl[DOUBLING_STEPS+1];
 
 	unsigned long flags;
 	cycles_t* trial_times = calloc(TRIALS + 1, sizeof(cycles_t));
@@ -172,10 +158,10 @@ int main()
 	if (!verify())
 	  return -1;
 
-	input_a = pre_asm_BN_new();
-	input_b = pre_asm_BN_new();
-	input_n = pre_asm_BN_new();
-	//////////////////////////////////
+	input_a = BN_new();
+	input_b = BN_new();
+	input_n = BN_new();
+
 
 	j = 0;
 	s = 256; // modular size in bytes
@@ -201,29 +187,29 @@ int main()
 	fprintf(stderr,"\n j = 2\n");
 	//////////////////////////////////
 
-	j = 3;
-	s = 768; // modular size in bytes
-	s_value[j] = s;
-	update_values();
-	do_all();
-	fprintf(stderr,"\n j = 3\n");
-	//////////////////////////////////
+	/* j = 3; */
+	/* s = 768; // modular size in bytes */
+	/* s_value[j] = s; */
+	/* update_values(); */
+	/* do_all(); */
+	/* fprintf(stderr,"\n j = 3\n"); */
+	/* ////////////////////////////////// */
 
-	j = 4;
-	s = 1024; // modular size in bytes
-	s_value[j] = s;
-	update_values();
-	do_all();
-	fprintf(stderr,"\n j = 4\n");
-	//////////////////////////////////
+	/* j = 4; */
+	/* s = 1024; // modular size in bytes */
+	/* s_value[j] = s; */
+	/* update_values(); */
+	/* do_all(); */
+	/* fprintf(stderr,"\n j = 4\n"); */
+	/* ////////////////////////////////// */
 
-	j = 5;
-	s = 2048; // modular size in bytes
-	s_value[j] = s;
-	update_values();
-	do_all();
-	fprintf(stderr,"\n j = 5\n");
-	//////////////////////////////////
+	/* j = 5; */
+	/* s = 2048; // modular size in bytes */
+	/* s_value[j] = s; */
+	/* update_values(); */
+	/* do_all(); */
+	/* fprintf(stderr,"\n j = 5\n"); */
+	/* ////////////////////////////////// */
 
 	fprintf(stderr,"%11s","");
 	for (j = 0; j <= DOUBLING_STEPS; ++j) \
@@ -235,8 +221,7 @@ int main()
 	report_it(openssl_c);
 	report_it(gmp);
 	report_it(gmp_c);
-	report_it(hacl_fw);
-	report_it(hacl_bm);
+	report_it(hacl);
 
 	/* Don't let compiler be too clever. */
 	dummy = ret;
