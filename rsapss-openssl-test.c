@@ -14,12 +14,8 @@
 #include "test_helpers.h"
 #include "rsapss_vectors.h"
 
-#include "openssl/crypto.h"
-#include "openssl/err.h"
 #include "openssl/evp.h"
 #include "openssl/rsa.h"
-#include "openssl/sha.h"
-#include "openssl/digest.h"
 #include "openssl/bn.h"
 
 #define ROUNDS 1000

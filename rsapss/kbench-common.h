@@ -12,7 +12,7 @@ typedef __uint128_t uint128_t;
 //#define load_limb(b_i) le64_to_cpup((__force __le64 *)b_i)
 //#define store_limb(b_o,o) *(__force __le64 *)(b_o) = cpu_to_le64(o)
 
-
+/*
 inline static uint16_t load16(uint8_t *b) {
   uint16_t x;
   memcpy(&x, b, 2);
@@ -78,3 +78,4 @@ __always_inline static uint64_t FStar_UInt64_gte_mask(uint64_t a, uint64_t b)
   uint64_t x_xor_q_ = x_xor_q >> (uint32_t)63U;
   return x_xor_q_ - (uint64_t)1U;
 }
+*/

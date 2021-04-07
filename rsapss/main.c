@@ -14,10 +14,13 @@
 #include <stdbool.h>
 #include <time.h>
 
-#include "openssl/bn.h"
-#include "openssl/rsa.h"
+#include "Hacl_RSAPSS.h"
 
-RSA*
+#include "openssl/evp.h"
+#include "openssl/rsa.h"
+#include "openssl/bn.h"
+
+EVP_PKEY*
 createPrivateKey(
   uint8_t* kN,
   uint32_t kN_len,
@@ -38,27 +41,11 @@ createPrivateKey(
 
   RSA_set0_key(pRsaKey, n, e, d);
 
-  return pRsaKey;
-}
+  EVP_PKEY *pkey = NULL;
+  pkey = EVP_PKEY_new();
+  EVP_PKEY_set1_RSA(pkey, pRsaKey);
 
-RSA*
-createPublicKey(
-  uint8_t* kN,
-  uint32_t kN_len,
-  uint8_t* kE,
-  uint32_t kE_len
-)
-{
-  RSA* pRsaKey = RSA_new();
-  BIGNUM *n = BN_new();
-  BIGNUM *e = BN_new();
-
-  BN_bin2bn(kN, kN_len, n);
-  BN_bin2bn(kE, kE_len, e);
-
-  RSA_set0_key(pRsaKey, n, e, NULL);
-
-  return pRsaKey;
+  return pkey;
 }
 
 void generate_rsakey(
@@ -100,7 +87,7 @@ typedef unsigned long long cycles_t;
 
 int dummy;
 
-//#include "test_vectors.h"
+#include "test_vectors.h"
 
 static __inline__ cycles_t get_cycles(void)
 {
@@ -111,10 +98,10 @@ static __inline__ cycles_t get_cycles(void)
 
 
 #define declare_it(name) \
-void rsapss_ ## name(u32 len, u8 *out, const u64* skey, const RSA* privkey); \
-static inline int name(size_t len) \
+void rsapss_sign_ ## name(u32 modBits, u8 *out, const u64* skey, const EVP_PKEY* privkey); \
+static inline int name(size_t modBits) \
 { \
-  rsapss_sign_ ## name(len, dummy_out, skey, privkey);	\
+  rsapss_sign_ ## name(modBits, dummy_out, input_skh, input_sko);	\
 }
 
 
@@ -132,16 +119,18 @@ static inline int name(size_t len) \
 } while (0)
 
 
-/* #define test_it(name, before, after) do { \ */
-/* 	memset(out, __LINE__, vectors[i].len); \ */
-/* 	before; \ */
-/* 	modexp_ ## name(vectors[i].len, out, vectors[i].ab, vectors[i].bb, vectors[i].nb, NULL); \ */
-/* 	after; \ */
-/* 	if (memcmp(out, vectors[i].resb, vectors[i].len)) { \ */
-/* 		fprintf(stderr,#name " self-test %zu: FAIL\n", i + 1); \ */
-/* 		return false; \ */
-/* 	} \ */
-/* } while (0) */
+#define test_it(name, before, after) do { \
+	memset(out, __LINE__, vectors[i].modBits / 8);	\
+	input_skh = Hacl_RSAPSS_new_rsapss_load_skey(vectors[i].modBits, vectors[i].eBits, vectors[i].dBits, vectors[i].n, vectors[i].e, vectors[i].d); \
+	input_sko = createPrivateKey(vectors[i].n, vectors[i].modBits / 8, vectors[i].e, 3, vectors[i].d, vectors[i].dBits / 8); \
+	before; \
+	rsapss_sign_ ## name(vectors[i].modBits, out, input_skh, input_sko); \
+	after; \
+	if (memcmp(out, vectors[i].sgnt_expected, vectors[i].modBits / 8)) { \
+		fprintf(stderr,#name " self-test %zu: FAIL\n", i + 1); \
+		return false; \
+	} \
+} while (0)
 
 
 #define report_it(name) do { \
@@ -154,15 +143,9 @@ static inline int name(size_t len) \
 
 
 #define update_values() do { \
-	pre_asm_BN_rand(input_n, 8 * s, 1, 1); \
-	pre_asm_BN_rand_range(input_a, input_n); \
-	pre_asm_BN_rand(input_b, 8 * s, 1, 0); \
-	pre_asm_BN_bn2binpad(input_a, input_ab, s); \
-	pre_asm_BN_bn2binpad(input_b, input_bb, s); \
-	pre_asm_BN_bn2binpad(input_n, input_nb, s); \
-	Hacl_Bignum64_bn_from_bytes_be(s, input_nb, input_nh); \
-	Hacl_Bignum64_bn_precomp_r2_mod_n(s / 8, 8 * s - 1, input_nh, input_r2h); \
-	Hacl_Bignum64_bn_to_bytes_be(s, input_r2h, input_r2b); \
+	generate_rsakey(s, input_n, 17, input_e, s, input_d);	\
+	input_skh = Hacl_RSAPSS_new_rsapss_load_skey(s, 17, s, input_n, input_e, input_d); \
+	input_sko = createPrivateKey(input_n, s / 8, input_e, 3, input_d, s / 8); \
 } while (0)
 
 
@@ -172,24 +155,17 @@ static inline int name(size_t len) \
 } while (0)
 
 
-enum { WARMUP = 10, TRIALS = 500, IDLE = 1 * 1000, DOUBLING_STEPS = 1 };
+enum { WARMUP = 10, TRIALS = 500, IDLE = 1 * 1000, DOUBLING_STEPS = 2 };
 u8 dummy_out[2048];
 u8 input_n[2048];
 u8 input_e[2048];
 u8 input_d[2048];
-u8 input_r2b[2048];
 
-BIGNUM *input_a = NULL, *input_b = NULL, *input_n = NULL;
-u64 input_nh[256];
-u64 input_r2h[256];
+uint64_t *input_skh = NULL;
+EVP_PKEY *input_sko = NULL;
 
 declare_it(openssl)
-declare_it(openssl_no_mulx)
-declare_it(openssl_c)
-declare_it(gmp)
-declare_it(gmp_c)
-declare_it(hacl_fw)
-declare_it(hacl_bm)
+declare_it(hacl)
 
 static int compare_cycles(const void *a, const void *b)
 {
@@ -199,15 +175,10 @@ static int compare_cycles(const void *a, const void *b)
 static bool verify(void)
 {
 	size_t i = 0;
-	u8 out[512];
+	u8 out[256]= {0};
 
+	test_it(hacl, {}, {});
 	test_it(openssl, {}, {});
-	test_it(openssl_no_mulx, {}, {});
-	test_it(openssl_c, {}, {});
-	test_it(gmp, {}, {});
-	test_it(gmp_c, {}, {});
-	test_it(hacl_fw, {}, {});
-	test_it(hacl_bm, {}, {});
 
 	return true;
 }
@@ -218,12 +189,7 @@ int main()
 	int ret = 0, i, j;
 	int s_value[DOUBLING_STEPS+1];
 	cycles_t median_openssl[DOUBLING_STEPS+1];
-	cycles_t median_openssl_no_mulx[DOUBLING_STEPS+1];
-	cycles_t median_openssl_c[DOUBLING_STEPS+1];
-	cycles_t median_gmp[DOUBLING_STEPS+1];
-	cycles_t median_gmp_c[DOUBLING_STEPS+1];
-	cycles_t median_hacl_fw[DOUBLING_STEPS+1];
-	cycles_t median_hacl_bm[DOUBLING_STEPS+1];
+	cycles_t median_hacl[DOUBLING_STEPS+1];
 
 	unsigned long flags;
 	cycles_t* trial_times = calloc(TRIALS + 1, sizeof(cycles_t));
@@ -231,13 +197,10 @@ int main()
 	if (!verify())
 	  return -1;
 
-	input_a = pre_asm_BN_new();
-	input_b = pre_asm_BN_new();
-	input_n = pre_asm_BN_new();
 	//////////////////////////////////
 
 	j = 0;
-	s = 256; // modular size in bytes
+	s = 2048; // modular size in bits
 	s_value[j] = s;
 	update_values();
 	do_all();
@@ -245,7 +208,7 @@ int main()
 	//////////////////////////////////
 
 	j = 1;
-	s = 384; // modular size in bytes
+	s = 3072; // modular size in bits
 	s_value[j] = s;
 	update_values();
 	do_all();
@@ -253,31 +216,31 @@ int main()
 	//////////////////////////////////
 
 	j = 2;
-	s = 512; // modular size in bytes
+	s = 4096; // modular size in bits
 	s_value[j] = s;
 	update_values();
 	do_all();
 	fprintf(stderr,"\n j = 2\n");
 	//////////////////////////////////
 
-	j = 3;
-	s = 768; // modular size in bytes
-	s_value[j] = s;
-	update_values();
-	do_all();
-	fprintf(stderr,"\n j = 3\n");
-	//////////////////////////////////
+	/* j = 3; */
+	/* s = 6144; // modular size in bits */
+	/* s_value[j] = s; */
+	/* update_values(); */
+	/* do_all(); */
+	/* fprintf(stderr,"\n j = 3\n"); */
+	/* ////////////////////////////////// */
 
-	j = 4;
-	s = 1024; // modular size in bytes
-	s_value[j] = s;
-	update_values();
-	do_all();
-	fprintf(stderr,"\n j = 4\n");
-	//////////////////////////////////
+	/* j = 4; */
+	/* s = 8192; // modular size in bits */
+	/* s_value[j] = s; */
+	/* update_values(); */
+	/* do_all(); */
+	/* fprintf(stderr,"\n j = 4\n"); */
+	/* ////////////////////////////////// */
 
 	/* j = 5; */
-	/* s = 2048; // modular size in bytes */
+	/* s = 16384; // modular size in bits */
 	/* s_value[j] = s; */
 	/* update_values(); */
 	/* do_all(); */
@@ -286,16 +249,11 @@ int main()
 
 	fprintf(stderr,"%11s","");
 	for (j = 0; j <= DOUBLING_STEPS; ++j) \
-		fprintf(stderr, " \x1b[4m%6u\x1b[24m", s_value[j] * 8);
+		fprintf(stderr, " \x1b[4m%6u\x1b[24m", s_value[j]);
 	fprintf(stderr,"\n");
 
 	report_it(openssl);
-	report_it(openssl_no_mulx);
-	//report_it(openssl_c);
-	//report_it(gmp);
-	//report_it(gmp_c);
-	report_it(hacl_fw);
-	//report_it(hacl_bm);
+	report_it(hacl);
 
 	/* Don't let compiler be too clever. */
 	dummy = ret;
