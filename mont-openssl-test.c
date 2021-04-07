@@ -10,6 +10,7 @@
 #include <time.h>
 
 #include "Hacl_Bignum64.h"
+#include "Hacl_GenericField64.h"
 #include "test_helpers.h"
 
 #include "openssl/crypto.h"
@@ -49,12 +50,12 @@ void ossl_bn_mont_sqr(BIGNUM *a, BIGNUM *c, BN_MONT_CTX *mont, BN_CTX *ctx){
   BN_mod_mul_montgomery(c, a, a, mont, ctx);
 }
 
-void hacl_bn_mont_mul(uint32_t len, uint64_t *n, uint64_t mu, uint64_t *a, uint64_t *b, uint64_t *res){
-  Hacl_Bignum64_bn_mont_mul(len, n, mu, a, b, res);
+void hacl_bn_mont_mul(Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64 *k, uint64_t *a, uint64_t *b, uint64_t *res){
+  Hacl_GenericField64_mul(k, a, b, res);
 }
 
-void hacl_bn_mont_sqr(uint32_t len, uint64_t *n, uint64_t mu, uint64_t *a, uint64_t *res){
-  Hacl_Bignum64_bn_mont_sqr(len, n, mu, a, res);
+void hacl_bn_mont_sqr(Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64 *k, uint64_t *a, uint64_t *res){
+  Hacl_GenericField64_sqr(k, a, res);
 }
 
 uint64_t *bn_ossl_to_hacl(uint32_t nBytes, BIGNUM *a){
@@ -95,29 +96,30 @@ void test_mont_mul(int nBits){
   uint64_t *bh = bn_ossl_to_hacl(nBytes, b);
   uint64_t *nh = bn_ossl_to_hacl(nBytes, n);
   uint64_t ch[nLen];
-  uint64_t mu = Hacl_Bignum_ModInvLimb_mod_inv_uint64(nh[0]);
+
+  Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64* k = Hacl_Bignum64_mont_ctx_init(nLen, nh);
 
   BN_MONT_CTX *mont = NULL;
   mont = BN_MONT_CTX_new();
   BN_MONT_CTX_set(mont, n, ctx);
 
   /* ossl_bn_mont_mul(a, b, c, mont, ctx); */
-  /* hacl_bn_mont_mul(nLen, nh, mu, ah, bh, ch); */
+  /* hacl_bn_mont_mul(k, ah, bh, ch); */
   /* bn_compare_and_print(nBytes, c, ch); */
 
   /* ossl_bn_mont_sqr(a, c, mont, ctx); */
-  /* hacl_bn_mont_sqr(nLen, nh, mu, ah, ch); */
+  /* hacl_bn_mont_sqr(k, ah, ch); */
   /* bn_compare_and_print(nBytes, c, ch); */
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_mont_mul(nLen, nh, mu, ah, bh, ch);
+    hacl_bn_mont_mul(k, ah, bh, ch);
   }
 
   t1 = clock();
   c1 = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_mont_mul(nLen, nh, mu, ah, bh, ch);
+    hacl_bn_mont_mul(k, ah, bh, ch);
   }
   c2 = cpucycles_end();
   t2 = clock();
@@ -165,20 +167,20 @@ void test_mont_sqr(int nBits){
   uint64_t *ah = bn_ossl_to_hacl(nBytes, a);
   uint64_t *nh = bn_ossl_to_hacl(nBytes, n);
   uint64_t ch[nLen];
-  uint64_t mu = Hacl_Bignum_ModInvLimb_mod_inv_uint64(nh[0]);
+  Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64* k = Hacl_Bignum64_mont_ctx_init(nLen, nh);
 
   BN_MONT_CTX *mont = NULL;
   mont = BN_MONT_CTX_new();
   BN_MONT_CTX_set(mont, n, ctx);
 
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_mont_sqr(nLen, nh, mu, ah, ch);
+    hacl_bn_mont_sqr(k, ah, ch);
   }
 
   t1 = clock();
   c1 = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_mont_sqr(nLen, nh, mu, ah, ch);
+    hacl_bn_mont_sqr(k, ah, ch);
   }
   c2 = cpucycles_end();
   t2 = clock();
