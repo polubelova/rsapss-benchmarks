@@ -42,17 +42,17 @@ void hacl_print(uint32_t len, uint64_t *b)
   print_bytes(len, to);
 }
 
-void ossl_bn_mod_exp_ct(BIGNUM *a, BIGNUM *b, BIGNUM *n, BIGNUM *c, BN_CTX *ctx){
+void ossl_bn_mod_exp_ct(BIGNUM *a, BIGNUM *b, BIGNUM *n, BIGNUM *c, BN_CTX *ctx, BN_MONT_CTX *in_mont){
   // c == a ^^ b % n
-  BN_mod_exp_mont_consttime(c, a, b, n, ctx, NULL);
+  BN_mod_exp_mont_consttime(c, a, b, n, ctx, in_mont);
   /* ossl_print(a); */
   /* ossl_print(b); */
   /* ossl_print(c); */
   /* ossl_print(n); */
 }
 
-void hacl_bn_mod_exp_ct(uint32_t len, uint64_t *n, uint64_t *a, uint32_t bBits, uint64_t *b, uint32_t l, uint64_t *r2, uint64_t *res){
-  Hacl_Bignum64_bn_mod_exp_fw_ct_precompr2(len, n, a, bBits, b, l, r2, res);
+void hacl_bn_mod_exp_ct(Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64 *k, uint64_t *a, uint32_t bBits, uint64_t *b, uint64_t *res){
+  Hacl_Bignum64_mod_exp_consttime_precomp(k, a, bBits, b, res);
   /* hacl_print(8*len, a); */
   /* hacl_print(8*len, b); */
   /* hacl_print(8*len, res); */
@@ -85,9 +85,6 @@ void test(int nBits){
   b = BN_new();
   n = BN_new();
   c = BN_new();
-  //BN_MONT_CTX *mont = NULL;
-  //mont = BN_MONT_CTX_new();
-  //BN_MONT_CTX_set(mont, n, ctx));
 
   int nBytes = (nBits - 1) / 8 + 1;
   int nLen = (nBits - 1) / 64 + 1;
@@ -100,21 +97,25 @@ void test(int nBits){
   uint64_t *bh = bn_ossl_to_hacl(nBytes, b);
   uint64_t *nh = bn_ossl_to_hacl(nBytes, n);
   uint64_t ch[nLen];
-  uint64_t *r2 = Hacl_Bignum64_new_precompr2(nLen, nh);
+  Hacl_Bignum_MontArithmetic_bn_mont_ctx_u64* k = Hacl_Bignum64_mont_ctx_init(nLen, nh);
 
-  //ossl_bn_mod_exp_ct(a, b, n, c, ctx);
-  //hacl_bn_mod_exp_ct(nLen, nh, ah, nBits, bh, 4, r2, ch);
-  //bn_compare_and_print(nBytes, c, ch);
+  BN_MONT_CTX *mont = NULL;
+  mont = BN_MONT_CTX_new();
+  BN_MONT_CTX_set(mont, n, ctx);
+
+  /* ossl_bn_mod_exp_ct(a, b, n, c, ctx, mont); */
+  /* hacl_bn_mod_exp_ct(k, ah, nBits, bh, ch); */
+  /* bn_compare_and_print(nBytes, c, ch); */
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_mod_exp_ct(nLen, nh, ah, nBits, bh, 4, r2, ch);
+    hacl_bn_mod_exp_ct(k, ah, nBits, bh, ch);
   }
 
   t1 = clock();
   c1 = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    hacl_bn_mod_exp_ct(nLen, nh, ah, nBits, bh, 4, r2, ch);
+    hacl_bn_mod_exp_ct(k, ah, nBits, bh, ch);
   }
   c2 = cpucycles_end();
   t2 = clock();
@@ -123,13 +124,13 @@ void test(int nBits){
 
 
   for (int j = 0; j < ROUNDS; j++) {
-    ossl_bn_mod_exp_ct(a, b, n, c, ctx);
+    ossl_bn_mod_exp_ct(a, b, n, c, ctx, mont);
   }
 
   t1 = clock();
   c1 = cpucycles_begin();
   for (int j = 0; j < ROUNDS; j++) {
-    ossl_bn_mod_exp_ct(a, b, n, c, ctx);
+    ossl_bn_mod_exp_ct(a, b, n, c, ctx, mont);
   }
   c2 = cpucycles_end();
   t2 = clock();
