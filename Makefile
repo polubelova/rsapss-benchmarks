@@ -39,17 +39,21 @@ copy-libs: libbignum.a librsapss.a libed25519.a
 	cp librsapss.a libraries/librsapss.a && \
 	cp libed25519.a libraries/libed25519.a
 
-libmodexphacl.a:
+libbignumhacl.a:
 	cp libraries/Hacl.BenchBignum.fst $(HACL_HOME)/code/bignum/Hacl.BenchBignum.fst && \
+	cp libraries/Hacl.BenchKaratsuba.fst $(HACL_HOME)/code/bignum/Hacl.BenchKaratsuba.fst && \
 	rm -rf $(HACL_HOME)/code/bignum/dist/*.a $(HACL_HOME)/code/bignum/dist/*.o && \
 	OTHERFLAGS="--admit_smt_queries true" make -C $(HACL_HOME)/code/bignum dist/libbignum.a && \
-	cp $(HACL_HOME)/code/bignum/dist/libbignum.a libmodexphacl.a
+	cp $(HACL_HOME)/code/bignum/dist/libbignum.a libbignumhacl.a
 
 rsapss-boringssl-test.exe: librsapss.a rsapss-openssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(BORINGSSL_HOME)/build/crypto/libcrypto.a -lpthread -ldl
 
-modexp-hacl-test.exe: libmodexphacl.a modexp-hacl-test.o
-	$(CC) $(CFLAGS) $(LDFLAGS) $^ libmodexphacl.a -o $@ $(BORINGSSL_HOME)/build/crypto/libcrypto.a -lpthread -ldl
+modexp-hacl-test.exe: libbignumhacl.a modexp-hacl-test.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignumhacl.a -o $@ $(BORINGSSL_HOME)/build/crypto/libcrypto.a -lpthread -ldl
+
+mul-hacl-test.exe: libbignumhacl.a mul-hacl-test.o
+	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignumhacl.a -o $@ $(BORINGSSL_HOME)/build/crypto/libcrypto.a -lpthread -ldl
 
 %.exe: libbignum.a librsapss.a %.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ libbignum.a librsapss.a -o $@ $(OPENSSL_HOME)/libcrypto.a -lpthread -ldl
