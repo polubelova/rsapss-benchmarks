@@ -29,6 +29,16 @@ libbignum.a:
 	OTHERFLAGS="--admit_smt_queries true" make -C $(HACL_HOME)/code/bignum dist/libbignum.a && \
 	cp $(HACL_HOME)/code/bignum/dist/libbignum.a libbignum.a
 
+libed25519.a:
+	rm -rf $(HACL_HOME)/code/ed25519/dist/*.a $(HACL_HOME)/code/ed25519/dist/*.o && \
+	OTHERFLAGS="--admit_smt_queries true" make -C $(HACL_HOME)/code/ed25519 dist/libed25519.a && \
+	cp $(HACL_HOME)/code/ed25519/dist/libed25519.a libed25519.a
+
+copy-libs: libbignum.a librsapss.a libed25519.a
+	cp libbignum.a libraries/libbignum.a && \
+	cp librsapss.a libraries/librsapss.a && \
+	cp libed25519.a libraries/libed25519.a
+
 rsapss-boringssl-test.exe: librsapss.a rsapss-openssl-test.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ librsapss.a -o $@ $(BORINGSSL_HOME)/build/crypto/libcrypto.a -lpthread -ldl
 
