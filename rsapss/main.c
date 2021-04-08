@@ -155,7 +155,7 @@ static inline int name(size_t modBits) \
 } while (0)
 
 
-enum { WARMUP = 10, TRIALS = 500, IDLE = 1 * 1000, DOUBLING_STEPS = 2 };
+enum { WARMUP = 50, TRIALS = 500, IDLE = 1 * 1000, DOUBLING_STEPS = 4 };
 u8 dummy_out[2048];
 u8 input_n[2048];
 u8 input_e[2048];
@@ -223,21 +223,21 @@ int main()
 	fprintf(stderr,"\n j = 2\n");
 	//////////////////////////////////
 
-	/* j = 3; */
-	/* s = 6144; // modular size in bits */
-	/* s_value[j] = s; */
-	/* update_values(); */
-	/* do_all(); */
-	/* fprintf(stderr,"\n j = 3\n"); */
-	/* ////////////////////////////////// */
+	j = 3;
+	s = 6144; // modular size in bits
+	s_value[j] = s;
+	update_values();
+	do_all();
+	fprintf(stderr,"\n j = 3\n");
+	//////////////////////////////////
 
-	/* j = 4; */
-	/* s = 8192; // modular size in bits */
-	/* s_value[j] = s; */
-	/* update_values(); */
-	/* do_all(); */
-	/* fprintf(stderr,"\n j = 4\n"); */
-	/* ////////////////////////////////// */
+	j = 4;
+	s = 8192; // modular size in bits
+	s_value[j] = s;
+	update_values();
+	do_all();
+	fprintf(stderr,"\n j = 4\n");
+	//////////////////////////////////
 
 	/* j = 5; */
 	/* s = 16384; // modular size in bits */

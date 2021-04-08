@@ -103,7 +103,7 @@ static inline int name(size_t len) \
 } while (0)
 
 
-enum { WARMUP = 5, TRIALS = 50, IDLE = 1 * 1000, DOUBLING_STEPS = 2 };
+enum { WARMUP = 50, TRIALS = 500, IDLE = 1 * 1000, DOUBLING_STEPS = 4 };
 u8 dummy_out[2048];
 u8 input_ab[2048];
 u8 input_bb[2048];
@@ -187,21 +187,21 @@ int main()
 	fprintf(stderr,"\n j = 2\n");
 	//////////////////////////////////
 
-	/* j = 3; */
-	/* s = 768; // modular size in bytes */
-	/* s_value[j] = s; */
-	/* update_values(); */
-	/* do_all(); */
-	/* fprintf(stderr,"\n j = 3\n"); */
-	/* ////////////////////////////////// */
+	j = 3;
+	s = 768; // modular size in bytes
+	s_value[j] = s;
+	update_values();
+	do_all();
+	fprintf(stderr,"\n j = 3\n");
+	//////////////////////////////////
 
-	/* j = 4; */
-	/* s = 1024; // modular size in bytes */
-	/* s_value[j] = s; */
-	/* update_values(); */
-	/* do_all(); */
-	/* fprintf(stderr,"\n j = 4\n"); */
-	/* ////////////////////////////////// */
+	j = 4;
+	s = 1024; // modular size in bytes
+	s_value[j] = s;
+	update_values();
+	do_all();
+	fprintf(stderr,"\n j = 4\n");
+	//////////////////////////////////
 
 	/* j = 5; */
 	/* s = 2048; // modular size in bytes */
