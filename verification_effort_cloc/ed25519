@@ -1,0 +1,66 @@
+ cloc ed25519 --force-lang=OCaml,fst --force-lang=OCaml,fsti --by-file --exclude-dir dist
+      34 text files.
+      34 unique files.
+      31 files ignored.
+
+http://cloc.sourceforge.net v 1.60  T=0.05 s (612.2 files/s, 118829.8 lines/s)
+------------------------------------------------------------------------------------------------
+File                                                         blank        comment           code
+------------------------------------------------------------------------------------------------
+ed25519/Hacl.Spec.BignumQ.Lemmas.fst                           131             63            745
+ed25519/Hacl.Spec.BignumQ.Mul.fst                               95             67            700
+ed25519/Hacl.Impl.Ed25519.RecoverX.fst                          32              0            331
+ed25519/Hacl.Bignum25519.fsti                                   29              2            229
+ed25519/Hacl.Bignum25519.fst                                    48             14            226
+ed25519/Hacl.Impl.Ed25519.PointEqual.fst                        33             42            221
+ed25519/Hacl.Impl.Ed25519.Ladder.fst                            45             10            213
+ed25519/Hacl.Impl.Load56.fst                                    19             14            202
+ed25519/Hacl.EC.Ed25519.fst                                     51              0            200
+ed25519/Hacl.Impl.Ed25519.Verify.fst                            22              0            188
+ed25519/Hacl.Impl.Ed25519.Sign.Steps.fst                        23              0            186
+ed25519/Hacl.Test.Ed25519.fst                                   28              0            183
+ed25519/Hacl.Impl.Ed25519.PointAdd.fst                          13              0            168
+ed25519/Hacl.Impl.Ed25519.PointCompress.fst                     18             13            157
+ed25519/Hacl.Impl.Ed25519.PointDouble.fst                       16              0            151
+ed25519/Hacl.Impl.Ed25519.Pow2_252m2.fst                         9              0            131
+ed25519/Hacl.Impl.SHA512.ModQ.fst                               15              0            124
+ed25519/Hacl.Impl.Ed25519.Sign.Expanded.fst                     18              0            114
+ed25519/Hacl.Impl.Store56.fst                                   12             13            107
+ed25519/Hacl.Impl.Ed25519.PointDecompress.fst                   17              0             97
+ed25519/Hacl.Impl.BignumQ.Mul.fsti                              19              0             66
+ed25519/Hacl.Benchmark.Ed25519.c                                26              0             65
+ed25519/Hacl.Spec.BignumQ.Definitions.fst                       22              3             64
+ed25519/Hacl.Ed25519.fsti                                        7              0             57
+ed25519/Hacl.Impl.BignumQ.Mul.fst                                9              0             40
+ed25519/Hacl.Impl.Ed25519.PointNegate.fst                        9              0             39
+ed25519/Hacl.Impl.Ed25519.Field51.fst                           12              0             35
+ed25519/Hacl.Impl.Ed25519.SecretToPublic.fst                     6              0             28
+ed25519/Hacl.Impl.Ed25519.Sign.fst                               6              0             27
+ed25519/Makefile                                                 9              5             26
+ed25519/Hacl.Impl.Ed25519.SecretExpand.fst                       5              0             25
+ed25519/Hacl.Ed25519.fst                                         5              0             11
+------------------------------------------------------------------------------------------------
+SUM:                                                           809            246           5156
+------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------
+File                                              blank        comment           code
+-------------------------------------------------------------------------------------
+ed25519/dist/Hacl_Ed25519.c                          52             22           1762
+ed25519/dist/Hacl_Hash.c                             43             22            998
+ed25519/dist/Hacl_Bignum25519_51.h                   11             22            232
+ed25519/dist/Hacl_Test_Ed25519.c                     21             22            207
+ed25519/dist/Hacl_EC_Ed25519.c                       19             22            125
+ed25519/dist/Hacl_Hash.h                             38             22             65
+ed25519/dist/Hacl_Curve25519.c                        5             22             49
+ed25519/dist/Hacl_Test_Ed25519.h                     21             22             33
+ed25519/dist/Hacl_Ed25519.h                          21             22             26
+ed25519/dist/Hacl_EC_Ed25519.h                       22             22             26
+ed25519/dist/Hacl_Kremlib.h                          19             22             19
+ed25519/dist/Hacl_Spec.h                              9             22             16
+ed25519/dist/Lib_PrintBuffer.h                       11             22             13
+ed25519/dist/Hacl_Lib.h                               9             22             11
+ed25519/dist/Hacl_Curve25519.h                        8             22             10
+-------------------------------------------------------------------------------------
+SUM:                                                309            330           3592
+-------------------------------------------------------------------------------------

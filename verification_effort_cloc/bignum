@@ -1,0 +1,109 @@
+cloc bignum --force-lang=OCaml,fst --force-lang=OCaml,fsti --by-file --exclude-dir dist
+      76 text files.
+      76 unique files.
+      39 files ignored.
+
+http://cloc.sourceforge.net v 1.60  T=0.11 s (646.5 files/s, 156469.7 lines/s)
+-------------------------------------------------------------------------------------------------------
+File                                                                blank        comment           code
+-------------------------------------------------------------------------------------------------------
+bignum/Hacl.Impl.Exponentiation.fst                                   134              0            807
+bignum/Hacl.Spec.Montgomery.Lemmas.fst                                145             44            661
+bignum/Hacl.Spec.Bignum.Karatsuba.fst                                 108             12            515
+bignum/Hacl.Spec.Bignum.Addition.fst                                   83             12            472
+bignum/Hacl.Spec.Bignum.Lib.fst                                        91             16            427
+bignum/Hacl.Bignum.fsti                                                92              7            425
+bignum/Hacl.Spec.Bignum.Multiplication.fst                             66              8            383
+bignum/Hacl.Spec.Bignum.Montgomery.fst                                 78              8            367
+bignum/Hacl.Spec.Bignum.Convert.fst                                    98              3            358
+bignum/Hacl.Spec.Bignum.fsti                                          120              0            350
+bignum/Hacl.Spec.Bignum.Squaring.fst                                   71              8            346
+bignum/Hacl.Bignum.MontArithmetic.fsti                                 79              7            338
+bignum/Hacl.Bignum.Karatsuba.fst                                       70              7            326
+bignum/Hacl.Impl.MultiExponentiation.fst                               41              0            287
+bignum/Hacl.Bignum.Addition.fst                                        45              4            286
+bignum/Hacl.Bignum.SafeAPI.fst                                         47              0            277
+bignum/Hacl.Spec.Exponentiation.Lemmas.fst                             68             33            276
+bignum/Hacl.Spec.Bignum.Definitions.fst                                58             15            272
+bignum/Hacl.Spec.Bignum.ModInvLimb.fst                                 40             13            222
+bignum/Hacl.Spec.Lib.fst                                               51              0            220
+bignum/Hacl.Bignum.AlmostMontExponentiation.fst                        49             12            208
+bignum/Hacl.Bignum4096.fsti                                            76              0            202
+bignum/Hacl.Bignum256.fsti                                             75              0            199
+bignum/Hacl.Bignum.Multiplication.fst                                  40              2            199
+bignum/Hacl.Spec.Bignum.fst                                            78              4            196
+bignum/Hacl.Bignum.Convert.fst                                         48              0            195
+bignum/Hacl.Bignum.MontExponentiation.fst                              51             12            194
+bignum/Hacl.Impl.Lib.fst                                               25              0            193
+bignum/Hacl.Spec.Bignum.Base.fst                                       42              3            188
+bignum/Hacl.Bignum32.fsti                                              70              0            186
+bignum/Hacl.Bignum64.fsti                                              70              0            186
+bignum/Hacl.Bignum.Montgomery.fst                                      42             18            185
+bignum/Hacl.Impl.Exponentiation.fsti                                   28             10            171
+bignum/Hacl.Bignum.Exponentiation.fst                                  49             18            163
+bignum/Hacl.Spec.Bignum.Comparison.fst                                 35              0            162
+bignum/Hacl.Spec.Bignum.Montgomery.fsti                                36              0            159
+bignum/Hacl.Bignum.Montgomery.fsti                                     47              9            157
+bignum/Hacl.Bignum.Lib.fst                                             33              0            156
+bignum/Hacl.Bignum.Exponentiation.fsti                                 35              9            146
+bignum/Hacl.Bignum.MontArithmetic.fst                                  37              0            141
+bignum/Hacl.Spec.Bignum.AlmostMontExponentiation.fst                   35             11            123
+bignum/Hacl.Bignum.Comparison.fst                                      26              0            121
+bignum/Hacl.Spec.Bignum.ModInv.fst                                     23              6            120
+bignum/Hacl.Spec.Bignum.MontArithmetic.fst                             51              1            118
+bignum/Hacl.Spec.Bignum.Exponentiation.fst                             42              0            111
+bignum/Hacl.Bignum.ModInv.fst                                          24              0            110
+bignum/Hacl.Spec.Bignum.MontExponentiation.fst                         37             11            109
+bignum/Hacl.GenericField64.fsti                                        50              0            106
+bignum/Hacl.GenericField32.fsti                                        50              0            106
+bignum/Hacl.Spec.Karatsuba.Lemmas.fst                                  25              4            105
+bignum/Hacl.Bignum.fst                                                 41             10            105
+bignum/Hacl.Bignum4096.fst                                             42             25            103
+bignum/Hacl.Bignum256.fst                                              42             25            101
+bignum/Hacl.Bignum.Base.fst                                            30             12             89
+bignum/Hacl.Spec.Bignum.Exponentiation.fsti                            24              5             88
+bignum/Hacl.Spec.AlmostMontgomery.Lemmas.fst                           24              5             85
+bignum/Hacl.Spec.Bignum.MontArithmetic.fsti                            41              5             81
+bignum/Hacl.Spec.Bignum.ModReduction.fst                               20              2             76
+bignum/Hacl.Bignum.ModReduction.fst                                    16              0             75
+bignum/Hacl.Bignum.ModInvLimb.fst                                      17              0             70
+bignum/Hacl.Bignum.AlmostMontgomery.fsti                               23              9             70
+bignum/Hacl.Spec.Bignum.AlmostMontgomery.fsti                          16              0             62
+bignum/Hacl.Bignum32.fst                                               25              0             62
+bignum/Hacl.Bignum64.fst                                               25              0             62
+bignum/Hacl.Bignum.AlmostMontgomery.fst                                20             18             59
+bignum/Hacl.Impl.MultiExponentiation.fsti                              12              0             57
+bignum/Hacl.Spec.Bignum.AlmostMontgomery.fst                           21              0             56
+bignum/Hacl.GenericField64.fst                                         18              0             46
+bignum/Hacl.GenericField32.fst                                         18              0             46
+bignum/Makefile                                                         9              5             20
+bignum/Hacl.Bignum.Definitions.fst                                      9              0             20
+bignum/Hacl.Bignum.ModInvLimb.fsti                                      9              0             18
+bignum/Hacl.Spec.Bignum.ModInvLimb.fsti                                 8              1             13
+-------------------------------------------------------------------------------------------------------
+SUM:                                                                 3424            449          13794
+-------------------------------------------------------------------------------------------------------
+
+
+------------------------------------------------------------------------------------
+File                                             blank        comment           code
+------------------------------------------------------------------------------------
+bignum/dist/Hacl_Bignum.c                           51             22           2317
+bignum/dist/Hacl_Bignum256.c                        91            214           1209
+bignum/dist/Hacl_Bignum4096.c                       92            217           1065
+bignum/dist/Hacl_Bignum32.c                         78            209            519
+bignum/dist/Hacl_Bignum64.c                         78            209            519
+bignum/dist/Hacl_GenericField64.c                   49            133            471
+bignum/dist/Hacl_GenericField32.c                   49            133            471
+bignum/dist/Hacl_Bignum.h                           44             22            268
+bignum/dist/Hacl_Bignum64.h                         82            209             81
+bignum/dist/Hacl_Bignum32.h                         82            209             81
+bignum/dist/Hacl_GenericField64.h                   53            133             79
+bignum/dist/Hacl_GenericField32.h                   53            133             79
+bignum/dist/Hacl_Bignum4096.h                       83            217             69
+bignum/dist/Hacl_Bignum256.h                        82            214             69
+bignum/dist/Hacl_Bignum_Base.h                       8             22             25
+bignum/dist/Hacl_Kremlib.h                          16             22             17
+------------------------------------------------------------------------------------
+SUM:                                               991           2318           7339
+------------------------------------------------------------------------------------

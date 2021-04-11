@@ -1,0 +1,10 @@
+---------------------------------------------------------------------------------------------
+File                                                      blank        comment           code
+---------------------------------------------------------------------------------------------
+./lemmas/Spec.Ed25519.Lemmas.fst                            199             97           1076
+./Spec.FFDHE.fst                                             54              4            558
+./Spec.RSAPSS.fst                                            83             14            338
+./Spec.Exponentiation.fst                                    40              9            187
+./Spec.Ed25519.fst                                           38             15            122
+./Spec.Ed25519.PointOps.fst                                  33              0            122
+./lemmas/Spec.Ed25519.Lemmas.fsti                            21              0             45

@@ -1,0 +1,32 @@
+cloc ffdhe --force-lang=OCaml,fst --force-lang=OCaml,fsti --by-file --exclude-dir dist
+       7 text files.
+       7 unique files.
+      18 files ignored.
+
+http://cloc.sourceforge.net v 1.60  T=0.01 s (356.0 files/s, 50057.6 lines/s)
+--------------------------------------------------------------------------------------
+File                                               blank        comment           code
+--------------------------------------------------------------------------------------
+ffdhe/Hacl.Impl.FFDHE.fst                             70              1            393
+ffdhe/Hacl.Spec.FFDHE.Lemmas.fst                      15              4             85
+ffdhe/Hacl.FFDHE.fst                                  20              0             49
+ffdhe/Hacl.Impl.FFDHE.Constants.fst                   10              0             21
+ffdhe/Makefile                                         9              5             21
+--------------------------------------------------------------------------------------
+SUM:                                                 124             10            569
+--------------------------------------------------------------------------------------
+
+-----------------------------------------------------------------------------------------
+File                                                  blank        comment           code
+-----------------------------------------------------------------------------------------
+ffdhe/dist/Hacl_Bignum.c                                 19             22            828
+ffdhe/dist/Hacl_Impl_FFDHE_Constants.h                   13             22            526
+ffdhe/dist/Hacl_FFDHE.c                                  13             22            279
+ffdhe/dist/Hacl_FFDHE.h                                  12             22             32
+ffdhe/dist/Hacl_Bignum.h                                 11             22             31
+ffdhe/dist/Hacl_Bignum_Base.h                             7             22             17
+ffdhe/dist/Hacl_Kremlib.h                                14             22             15
+ffdhe/dist/Hacl_Spec.h                                    9             22             14
+-----------------------------------------------------------------------------------------
+SUM:                                                     98            176           1742
+-----------------------------------------------------------------------------------------

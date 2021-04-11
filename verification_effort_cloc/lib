@@ -1,0 +1,10 @@
+-----------------------------------------------------------------------------------
+File                                            blank        comment           code
+-----------------------------------------------------------------------------------
+./Lib.Exponentiation.fst                           91             34            530
+./Lib.NatMod.fst                                   68             29            261
+./Lib.Exponentiation.fsti                          61              6            146
+./Lib.NatMod.fsti                                  42             12             62
+
+./Lib.IntTypes.Intrinsics.fsti                     17              0             45
+./c/lib_intrinsics.h                               22              5             40

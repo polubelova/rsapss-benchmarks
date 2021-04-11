@@ -1,0 +1,39 @@
+cloc rsapss --force-lang=OCaml,fst --force-lang=OCaml,fsti --by-file --exclude-dir dist
+       9 text files.
+       9 unique files.
+      31 files ignored.
+
+http://cloc.sourceforge.net v 1.60  T=0.02 s (358.3 files/s, 130835.3 lines/s)
+--------------------------------------------------------------------------------------
+File                                               blank        comment           code
+--------------------------------------------------------------------------------------
+rsapss/Hacl.Spec.RSAPSS.fst                          181              2            817
+rsapss/Hacl.Impl.RSAPSS.fst                           94              0            528
+rsapss/Hacl.Impl.RSAPSS.Keys.fst                      75             21            342
+rsapss/Hacl.Impl.RSAPSS.Padding.fst                   43              0            204
+rsapss/Hacl.Impl.RSAPSS.MGF.fst                       20              1            103
+rsapss/Hacl.RSAPSS.fst                                27              0             59
+rsapss/Makefile                                       10              5             24
+--------------------------------------------------------------------------------------
+SUM:                                                 450             29           2077
+--------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------
+File                                                    blank        comment           code
+-------------------------------------------------------------------------------------------
+rsapss/dist/Hacl_Bignum.c                                  20             22            970
+rsapss/dist/Hacl_Hash_SHA2.c                               31             22            772
+rsapss/dist/Hacl_RSAPSS.c                                  19             22            701
+rsapss/dist/Hacl_RSAPSS.h                                  12             22             76
+rsapss/dist/Hacl_Impl_Blake2_Constants.c                    7             22             52
+rsapss/dist/Hacl_Hash_SHA2.h                               18             22             45
+rsapss/dist/Hacl_Impl_Blake2_Core.c                         6             22             43
+rsapss/dist/Hacl_Bignum.h                                  12             22             42
+rsapss/dist/Hacl_Kremlib.h                                 17             22             18
+rsapss/dist/Hacl_Spec.h                                     9             22             17
+rsapss/dist/Hacl_Bignum_Base.h                              7             22             17
+rsapss/dist/Hacl_Impl_Blake2_Core.h                        12             22             15
+rsapss/dist/Hacl_Impl_Blake2_Constants.h                   11             22             12
+-------------------------------------------------------------------------------------------
+SUM:                                                      181            286           2780
+-------------------------------------------------------------------------------------------
